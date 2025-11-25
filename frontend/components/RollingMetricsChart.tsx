@@ -19,6 +19,13 @@ interface RollingMetricsChartProps {
 }
 
 export default function RollingMetricsChart({ rollingMetrics }: RollingMetricsChartProps) {
+  // Helper function to format date (remove time component)
+  const formatDate = (dateStr: string): string => {
+    if (!dateStr) return '';
+    // Handle both "2024-01-01 00:00:00" and "2024-01-01" formats
+    return dateStr.split(' ')[0];
+  };
+  
   // Prepare data for Sharpe ratio chart
   const sharpeData: any[] = [];
   const allSharpeDates = new Set<string>();
@@ -31,7 +38,7 @@ export default function RollingMetricsChart({ rollingMetrics }: RollingMetricsCh
   });
   
   Array.from(allSharpeDates).sort().forEach(date => {
-    const point: any = { date };
+    const point: any = { date: formatDate(date) };
     ['sharpe_30', 'sharpe_60', 'sharpe_90'].forEach(key => {
       const data = rollingMetrics[key as keyof typeof rollingMetrics] as RollingMetricsData[] | undefined;
       if (data) {
@@ -56,7 +63,7 @@ export default function RollingMetricsChart({ rollingMetrics }: RollingMetricsCh
   });
   
   Array.from(allVolDates).sort().forEach(date => {
-    const point: any = { date };
+    const point: any = { date: formatDate(date) };
     ['volatility_30', 'volatility_60', 'volatility_90'].forEach(key => {
       const data = rollingMetrics[key as keyof typeof rollingMetrics] as RollingMetricsData[] | undefined;
       if (data) {
@@ -70,121 +77,145 @@ export default function RollingMetricsChart({ rollingMetrics }: RollingMetricsCh
   });
   
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 overflow-hidden">
       {/* Rolling Sharpe Ratio Chart */}
-      <div className="w-full h-80">
+      <div className="w-full overflow-hidden">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           Rolling Sharpe Ratio
         </h3>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={sharpeData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis 
-              dataKey="date" 
-              tick={{ fontSize: 12 }}
-              angle={-45}
-              textAnchor="end"
-              height={80}
-            />
-            <YAxis 
-              tick={{ fontSize: 12 }}
-              label={{ value: 'Sharpe Ratio', angle: -90, position: 'insideLeft' }}
-            />
-            <Tooltip 
+        <div className="w-full" style={{ height: '350px', minHeight: 0 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={sharpeData} margin={{ top: 10, right: 30, left: 60, bottom: 60 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+              <XAxis 
+                dataKey="date" 
+                tick={{ fontSize: 11, fill: '#6b7280' }}
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                interval="preserveStartEnd"
+              />
+              <YAxis 
+                tick={{ fontSize: 11, fill: '#6b7280' }}
+                label={{ value: 'Sharpe Ratio', angle: -90, position: 'insideLeft', offset: -10 }}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  padding: '8px'
+                }}
               formatter={(value: any) => parseFloat(value).toFixed(3)}
-              labelFormatter={(label) => `Date: ${label}`}
-            />
-            <Legend />
-            {rollingMetrics.sharpe_30 && (
-              <Line
-                type="monotone"
-                dataKey="30d"
-                stroke="#3B82F6"
-                strokeWidth={2}
-                dot={false}
-                name="30-day"
+              labelFormatter={(label) => `Date: ${formatDate(label)}`}
               />
-            )}
-            {rollingMetrics.sharpe_60 && (
-              <Line
-                type="monotone"
-                dataKey="60d"
-                stroke="#10B981"
-                strokeWidth={2}
-                dot={false}
-                name="60-day"
+              <Legend 
+                wrapperStyle={{ paddingTop: '10px' }}
+                iconType="line"
               />
-            )}
-            {rollingMetrics.sharpe_90 && (
-              <Line
-                type="monotone"
-                dataKey="90d"
-                stroke="#F59E0B"
-                strokeWidth={2}
-                dot={false}
-                name="90-day"
-              />
-            )}
-          </LineChart>
-        </ResponsiveContainer>
+              {rollingMetrics.sharpe_30 && (
+                <Line
+                  type="monotone"
+                  dataKey="30d"
+                  stroke="#3B82F6"
+                  strokeWidth={2}
+                  dot={false}
+                  name="30-day"
+                />
+              )}
+              {rollingMetrics.sharpe_60 && (
+                <Line
+                  type="monotone"
+                  dataKey="60d"
+                  stroke="#10B981"
+                  strokeWidth={2}
+                  dot={false}
+                  name="60-day"
+                />
+              )}
+              {rollingMetrics.sharpe_90 && (
+                <Line
+                  type="monotone"
+                  dataKey="90d"
+                  stroke="#F59E0B"
+                  strokeWidth={2}
+                  dot={false}
+                  name="90-day"
+                />
+              )}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
       
       {/* Rolling Volatility Chart */}
-      <div className="w-full h-80">
+      <div className="w-full overflow-hidden">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           Rolling Volatility
         </h3>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={volData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis 
-              dataKey="date" 
-              tick={{ fontSize: 12 }}
-              angle={-45}
-              textAnchor="end"
-              height={80}
-            />
-            <YAxis 
-              tick={{ fontSize: 12 }}
-              label={{ value: 'Volatility (%)', angle: -90, position: 'insideLeft' }}
-            />
-            <Tooltip 
+        <div className="w-full" style={{ height: '350px', minHeight: 0 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={volData} margin={{ top: 10, right: 30, left: 60, bottom: 60 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+              <XAxis 
+                dataKey="date" 
+                tick={{ fontSize: 11, fill: '#6b7280' }}
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                interval="preserveStartEnd"
+              />
+              <YAxis 
+                tick={{ fontSize: 11, fill: '#6b7280' }}
+                label={{ value: 'Volatility (%)', angle: -90, position: 'insideLeft', offset: -10 }}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  padding: '8px'
+                }}
               formatter={(value: any) => `${parseFloat(value).toFixed(2)}%`}
-              labelFormatter={(label) => `Date: ${label}`}
-            />
-            <Legend />
-            {rollingMetrics.volatility_30 && (
-              <Line
-                type="monotone"
-                dataKey="30d"
-                stroke="#EF4444"
-                strokeWidth={2}
-                dot={false}
-                name="30-day"
+              labelFormatter={(label) => `Date: ${formatDate(label)}`}
               />
-            )}
-            {rollingMetrics.volatility_60 && (
-              <Line
-                type="monotone"
-                dataKey="60d"
-                stroke="#F97316"
-                strokeWidth={2}
-                dot={false}
-                name="60-day"
+              <Legend 
+                wrapperStyle={{ paddingTop: '10px' }}
+                iconType="line"
               />
-            )}
-            {rollingMetrics.volatility_90 && (
-              <Line
-                type="monotone"
-                dataKey="90d"
-                stroke="#8B5CF6"
-                strokeWidth={2}
-                dot={false}
-                name="90-day"
-              />
-            )}
-          </LineChart>
-        </ResponsiveContainer>
+              {rollingMetrics.volatility_30 && (
+                <Line
+                  type="monotone"
+                  dataKey="30d"
+                  stroke="#EF4444"
+                  strokeWidth={2}
+                  dot={false}
+                  name="30-day"
+                />
+              )}
+              {rollingMetrics.volatility_60 && (
+                <Line
+                  type="monotone"
+                  dataKey="60d"
+                  stroke="#F97316"
+                  strokeWidth={2}
+                  dot={false}
+                  name="60-day"
+                />
+              )}
+              {rollingMetrics.volatility_90 && (
+                <Line
+                  type="monotone"
+                  dataKey="90d"
+                  stroke="#8B5CF6"
+                  strokeWidth={2}
+                  dot={false}
+                  name="90-day"
+                />
+              )}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );

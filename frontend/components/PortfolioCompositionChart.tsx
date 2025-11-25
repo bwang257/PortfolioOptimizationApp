@@ -34,41 +34,50 @@ export default function PortfolioCompositionChart({ weights }: PortfolioComposit
   };
   
   return (
-    <div className="w-full h-96">
+    <div className="w-full overflow-hidden">
       <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
         Portfolio Composition
       </h3>
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            label={renderLabel}
-            outerRadius={100}
-            fill="#8884d8"
-            dataKey="value"
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip 
-            formatter={(value: any) => `${parseFloat(value).toFixed(2)}%`}
-            labelFormatter={(label, payload) => {
-              const entry = payload[0]?.payload;
-              return `${entry?.name} (${entry?.sign})`;
-            }}
-          />
-          <Legend 
-            formatter={(value, entry: any) => {
-              const dataEntry = entry.payload;
-              return `${dataEntry.name}: ${dataEntry.value.toFixed(1)}% (${dataEntry.sign})`;
-            }}
-          />
-        </PieChart>
-      </ResponsiveContainer>
+      <div className="w-full" style={{ height: '400px', minHeight: 0 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label={renderLabel}
+              outerRadius={120}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                padding: '8px'
+              }}
+              formatter={(value: any) => `${parseFloat(value).toFixed(2)}%`}
+              labelFormatter={(label, payload) => {
+                const entry = payload[0]?.payload;
+                return `${entry?.name} (${entry?.sign})`;
+              }}
+            />
+            <Legend 
+              wrapperStyle={{ paddingTop: '10px' }}
+              formatter={(value, entry: any) => {
+                const dataEntry = entry.payload;
+                return `${dataEntry.name}: ${dataEntry.value.toFixed(1)}% (${dataEntry.sign})`;
+              }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

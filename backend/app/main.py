@@ -70,9 +70,13 @@ async def optimize_portfolio(request: PortfolioRequest):
         
         logger.info(f"Loaded {len(prices)} days of data for {len(request.tickers)} tickers")
         
+        # Use only the requested lookback period for optimization
+        # But keep all data for rolling metrics and price history
+        returns_for_optimization = returns.tail(request.lookback_days)
+        
         # Optimize portfolio
         optimizer = PortfolioOptimizer(
-            returns=returns,
+            returns=returns_for_optimization,
             objective=request.objective,
             portfolio_type=request.portfolio_type
         )
@@ -81,7 +85,8 @@ async def optimize_portfolio(request: PortfolioRequest):
         # Convert weights array to dictionary
         weights_dict = {ticker: float(weight) for ticker, weight in zip(request.tickers, optimal_weights)}
         
-        # Calculate portfolio returns for additional metrics
+        # Calculate portfolio returns for additional metrics using all available data
+        # This ensures rolling metrics have enough historical data
         portfolio_returns = (returns * optimal_weights).sum(axis=1)
         expected_return = float(portfolio_returns.mean() * 252)
         volatility = RiskMetrics.calculate_volatility(portfolio_returns)

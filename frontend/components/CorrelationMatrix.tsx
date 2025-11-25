@@ -21,21 +21,21 @@ export default function CorrelationMatrix({ correlationMatrix, tickers }: Correl
   };
   
   return (
-    <div className="w-full">
+    <div className="w-full overflow-hidden">
       <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
         Correlation Matrix
       </h3>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto overflow-y-visible">
         <table className="min-w-full border-collapse">
           <thead>
             <tr>
-              <th className="border border-gray-300 dark:border-gray-600 p-2 bg-gray-100 dark:bg-gray-800 text-left text-xs font-medium text-gray-700 dark:text-gray-300 sticky left-0 z-10">
+              <th className="border border-gray-300 dark:border-gray-600 p-2 bg-gray-100 dark:bg-gray-800 text-left text-xs font-medium text-gray-700 dark:text-gray-300 sticky left-0 z-10 whitespace-nowrap">
                 Ticker
               </th>
               {tickers.map((ticker) => (
                 <th
                   key={ticker}
-                  className="border border-gray-300 dark:border-gray-600 p-2 bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 min-w-[80px]"
+                  className="border border-gray-300 dark:border-gray-600 p-2 bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 min-w-[80px] whitespace-nowrap"
                 >
                   {ticker}
                 </th>
@@ -45,7 +45,7 @@ export default function CorrelationMatrix({ correlationMatrix, tickers }: Correl
           <tbody>
             {tickers.map((ticker1) => (
               <tr key={ticker1}>
-                <td className="border border-gray-300 dark:border-gray-600 p-2 bg-gray-100 dark:bg-gray-800 font-medium text-xs text-gray-700 dark:text-gray-300 sticky left-0 z-10">
+                <td className="border border-gray-300 dark:border-gray-600 p-2 bg-gray-100 dark:bg-gray-800 font-medium text-xs text-gray-700 dark:text-gray-300 sticky left-0 z-10 whitespace-nowrap">
                   {ticker1}
                 </td>
                 {tickers.map((ticker2) => {
@@ -53,7 +53,7 @@ export default function CorrelationMatrix({ correlationMatrix, tickers }: Correl
                   return (
                     <td
                       key={`${ticker1}-${ticker2}`}
-                      className="border border-gray-300 dark:border-gray-600 p-2 text-center text-xs"
+                      className="border border-gray-300 dark:border-gray-600 p-2 text-center text-xs whitespace-nowrap"
                       style={{ backgroundColor: getColor(correlation) }}
                     >
                       <span className={getTextColor(correlation)}>
@@ -67,17 +67,17 @@ export default function CorrelationMatrix({ correlationMatrix, tickers }: Correl
           </tbody>
         </table>
       </div>
-      <div className="mt-4 flex items-center gap-4 text-sm">
+      <div className="mt-4 flex flex-wrap items-center gap-4 text-xs sm:text-sm">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-red-500"></div>
+          <div className="w-4 h-4 bg-red-500 rounded"></div>
           <span className="text-gray-600 dark:text-gray-400">Negative Correlation</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-blue-500"></div>
+          <div className="w-4 h-4 bg-blue-500 rounded"></div>
           <span className="text-gray-600 dark:text-gray-400">Positive Correlation</span>
         </div>
       </div>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 break-words">
         Correlation values range from -1 (perfect negative) to +1 (perfect positive). Values closer to 0 indicate less correlation.
       </p>
     </div>

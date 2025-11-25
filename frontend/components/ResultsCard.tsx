@@ -31,11 +31,18 @@ export default function MetricsTable({
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {metrics.map((metric) => (
-        <div key={metric.label} style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-          <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>{metric.label}</p>
-          <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827' }}>{metric.value}</p>
+        <div 
+          key={metric.label} 
+          className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden"
+        >
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 break-words">
+            {metric.label}
+          </p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white break-words">
+            {metric.value}
+          </p>
         </div>
       ))}
     </div>

@@ -7,6 +7,13 @@ interface DrawdownChartProps {
 }
 
 export default function DrawdownChart({ portfolioReturns }: DrawdownChartProps) {
+  // Helper function to format date (remove time component)
+  const formatDate = (dateStr: string): string => {
+    if (!dateStr) return '';
+    // Handle both "2024-01-01 00:00:00" and "2024-01-01" formats
+    return dateStr.split(' ')[0];
+  };
+  
   // Calculate drawdown
   const chartData = portfolioReturns.map((point, index) => {
     const currentValue = point.value;
@@ -14,52 +21,72 @@ export default function DrawdownChart({ portfolioReturns }: DrawdownChartProps) 
     const drawdown = ((currentValue - peakValue) / peakValue) * 100;
     
     return {
-      date: point.date,
-      drawdown: drawdown.toFixed(2),
+      date: formatDate(point.date),
+      drawdown: parseFloat(drawdown.toFixed(2)),
     };
   });
   
+  // Calculate Y-axis domain to prevent spikes below axis
+  const drawdownValues = chartData.map(d => d.drawdown);
+  const minDrawdown = Math.min(...drawdownValues);
+  const maxDrawdown = 0;
+
+  // Add padding below minimum (10% or at least 2%)
+  const padding = Math.max(Math.abs(minDrawdown) * 0.1, 2);
+  const yAxisDomain = [minDrawdown - padding, maxDrawdown];
+  
   return (
-    <div className="w-full h-96">
+    <div className="w-full overflow-hidden">
       <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
         Drawdown Analysis
       </h3>
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          <defs>
-            <linearGradient id="colorDrawdown" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#EF4444" stopOpacity={0.8}/>
-              <stop offset="95%" stopColor="#EF4444" stopOpacity={0.1}/>
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis 
-            dataKey="date" 
-            tick={{ fontSize: 12 }}
-            angle={-45}
-            textAnchor="end"
-            height={80}
-          />
-          <YAxis 
-            tick={{ fontSize: 12 }}
-            label={{ value: 'Drawdown (%)', angle: -90, position: 'insideLeft' }}
-          />
-          <Tooltip 
-            formatter={(value: any) => `${parseFloat(value).toFixed(2)}%`}
-            labelFormatter={(label) => `Date: ${label}`}
-            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb' }}
-          />
-          <Area
-            type="monotone"
-            dataKey="drawdown"
-            stroke="#EF4444"
-            fillOpacity={1}
-            fill="url(#colorDrawdown)"
-            name="Drawdown"
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+      <div className="w-full" style={{ height: '400px', minHeight: 0 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 60, bottom: 60 }}>
+            <defs>
+              <linearGradient id="colorDrawdown" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#EF4444" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="#EF4444" stopOpacity={0.1}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+            <XAxis 
+              dataKey="date" 
+              tick={{ fontSize: 11, fill: '#6b7280' }}
+              angle={-45}
+              textAnchor="end"
+              height={60}
+              interval="preserveStartEnd"
+            />
+            <YAxis 
+              tick={{ fontSize: 11, fill: '#6b7280' }}
+              label={{ value: 'Drawdown (%)', angle: -90, position: 'insideLeft', offset: -10 }}
+              domain={yAxisDomain}
+              tickFormatter={(value) => parseFloat(value).toFixed(1)}
+            />
+            <Tooltip 
+              formatter={(value: any) => [`${parseFloat(value).toFixed(2)}%`, 'Drawdown']}
+              labelFormatter={(label) => `Date: ${formatDate(label)}`}
+              contentStyle={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                padding: '8px'
+              }}
+            />
+            <Area
+              type="monotone"
+              dataKey="drawdown"
+              stroke="#EF4444"
+              strokeWidth={2}
+              fillOpacity={1}
+              fill="url(#colorDrawdown)"
+              name="Drawdown"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 break-words">
         Drawdown shows the peak-to-trough decline in portfolio value over time
       </p>
     </div>

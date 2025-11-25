@@ -13,6 +13,13 @@ interface PerformanceChartProps {
 }
 
 export default function PerformanceChart({ priceHistory, portfolioReturns }: PerformanceChartProps) {
+  // Helper function to format date (remove time component)
+  const formatDate = (dateStr: string): string => {
+    if (!dateStr) return '';
+    // Handle both "2024-01-01 00:00:00" and "2024-01-01" formats
+    return dateStr.split(' ')[0];
+  };
+  
   // Prepare data for chart
   const chartData: any[] = [];
   
@@ -29,7 +36,7 @@ export default function PerformanceChart({ priceHistory, portfolioReturns }: Per
   
   // Build chart data
   sortedDates.forEach(date => {
-    const dataPoint: any = { date };
+    const dataPoint: any = { date: formatDate(date) };
     
     // Add price data for each ticker
     Object.entries(priceHistory).forEach(([ticker, prices]) => {
@@ -37,7 +44,7 @@ export default function PerformanceChart({ priceHistory, portfolioReturns }: Per
       if (pricePoint) {
         // Normalize to percentage change from first value
         const firstPrice = prices[0]?.price || 1;
-        dataPoint[ticker] = ((pricePoint.price / firstPrice - 1) * 100).toFixed(2);
+        dataPoint[ticker] = parseFloat(((pricePoint.price / firstPrice - 1) * 100).toFixed(2));
       }
     });
     
@@ -46,12 +53,27 @@ export default function PerformanceChart({ priceHistory, portfolioReturns }: Per
       const portfolioPoint = portfolioReturns.find(p => p.date === date);
       if (portfolioPoint) {
         const firstValue = portfolioReturns[0]?.value || 1;
-        dataPoint['Portfolio'] = ((portfolioPoint.value / firstValue - 1) * 100).toFixed(2);
+        dataPoint['Portfolio'] = parseFloat(((portfolioPoint.value / firstValue - 1) * 100).toFixed(2));
       }
     }
     
     chartData.push(dataPoint);
   });
+  
+  // Calculate dynamic Y-axis domain with padding
+  const allValues: number[] = [];
+  chartData.forEach(point => {
+    Object.keys(point).forEach(key => {
+      if (key !== 'date' && typeof point[key] === 'number') {
+        allValues.push(point[key]);
+      }
+    });
+  });
+  
+  const minValue = Math.min(...allValues);
+  const maxValue = Math.max(...allValues);
+  const padding = Math.max(Math.abs(maxValue - minValue) * 0.1, 5); // 10% padding or at least 5%
+  const yAxisDomain = [minValue - padding, maxValue + padding];
   
   const colors = [
     '#3B82F6', // blue
@@ -68,52 +90,65 @@ export default function PerformanceChart({ priceHistory, portfolioReturns }: Per
   const hasPortfolio = portfolioReturns && portfolioReturns.length > 0;
   
   return (
-    <div className="w-full h-96">
+    <div className="w-full overflow-hidden">
       <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
         Performance Over Time
       </h3>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis 
-            dataKey="date" 
-            tick={{ fontSize: 12 }}
-            angle={-45}
-            textAnchor="end"
-            height={80}
-          />
-          <YAxis 
-            tick={{ fontSize: 12 }}
-            label={{ value: 'Return (%)', angle: -90, position: 'insideLeft' }}
-          />
-          <Tooltip 
-            formatter={(value: any) => `${parseFloat(value).toFixed(2)}%`}
-            labelFormatter={(label) => `Date: ${label}`}
-          />
-          <Legend />
-          {tickers.map((ticker, index) => (
-            <Line
-              key={ticker}
-              type="monotone"
-              dataKey={ticker}
-              stroke={colors[index % colors.length]}
-              strokeWidth={2}
-              dot={false}
-              name={ticker}
+      <div className="w-full" style={{ height: '400px', minHeight: 0 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData} margin={{ top: 10, right: 30, left: 60, bottom: 60 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+            <XAxis 
+              dataKey="date" 
+              tick={{ fontSize: 11, fill: '#6b7280' }}
+              angle={-45}
+              textAnchor="end"
+              height={60}
+              interval="preserveStartEnd"
             />
-          ))}
-          {hasPortfolio && (
-            <Line
-              type="monotone"
-              dataKey="Portfolio"
-              stroke="#1F2937"
-              strokeWidth={3}
-              dot={false}
-              name="Optimized Portfolio"
+            <YAxis 
+              tick={{ fontSize: 11, fill: '#6b7280' }}
+              label={{ value: 'Return (%)', angle: -90, position: 'insideLeft', offset: -10 }}
+              domain={yAxisDomain}
             />
-          )}
-        </LineChart>
-      </ResponsiveContainer>
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                padding: '8px'
+              }}
+              formatter={(value: any) => `${parseFloat(value).toFixed(2)}%`}
+              labelFormatter={(label) => `Date: ${formatDate(label)}`}
+            />
+            <Legend 
+              wrapperStyle={{ paddingTop: '10px' }}
+              iconType="line"
+            />
+            {tickers.map((ticker, index) => (
+              <Line
+                key={ticker}
+                type="monotone"
+                dataKey={ticker}
+                stroke={colors[index % colors.length]}
+                strokeWidth={2}
+                dot={false}
+                name={ticker}
+              />
+            ))}
+            {hasPortfolio && (
+              <Line
+                type="monotone"
+                dataKey="Portfolio"
+                stroke="#f5f5f5"
+                strokeWidth={3}
+                dot={false}
+                name="Optimized Portfolio"
+              />
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

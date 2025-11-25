@@ -32,9 +32,14 @@ class DataLoader:
         if not tickers:
             raise ValueError("Tickers list cannot be empty")
         
-        # Calculate start date
+        # Add buffer for rolling metrics (need at least 90 days extra for 90-day rolling windows)
+        # Use max of 90 days or 1.5x lookback_days to ensure enough data
+        buffer_days = max(90, int(self.lookback_days * 0.5))
+        total_days_needed = self.lookback_days + buffer_days
+        
+        # Calculate start date - fetch more data than needed
         end_date = datetime.now()
-        start_date = end_date - timedelta(days=self.lookback_days * 2)
+        start_date = end_date - timedelta(days=total_days_needed * 2)
         
         # Fetch data
         try:
@@ -65,7 +70,7 @@ class DataLoader:
         prices = prices.ffill().bfill()
         
         # Remove tickers with insufficient data
-        min_required_days = self.lookback_days * 0.8
+        min_required_days = total_days_needed * 0.8
         valid_tickers = []
         for ticker in tickers:
             if ticker in prices.columns:
@@ -77,11 +82,12 @@ class DataLoader:
             raise ValueError("No tickers with sufficient historical data")
         
         prices = prices[valid_tickers]
-        prices = prices.tail(self.lookback_days)
+        # Return all available data (not just lookback_days) so rolling metrics have enough data
+        # The optimization will use the last lookback_days, but rolling metrics need the full range
         prices = prices.dropna()
         
-        if len(prices) < 30:
-            raise ValueError(f"Insufficient data: only {len(prices)} days available")
+        if len(prices) < total_days_needed:
+            raise ValueError(f"Insufficient data: only {len(prices)} days available, need at least {total_days_needed}")
         
         return prices
     

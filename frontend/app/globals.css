@@ -9,7 +9,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #faf5f5;
     --foreground: #000000;
   }
 }
@@ -24,4 +24,38 @@ body {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+}
+
+/* Text overflow utilities */
+.text-overflow-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-break-word {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Chart container utilities */
+.chart-container {
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Ensure responsive containers don't overflow */
+.recharts-wrapper {
+  max-width: 100% !important;
+}
+
+.recharts-surface {
+  max-width: 100% !important;
 }
