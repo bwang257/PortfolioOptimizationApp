@@ -38,3 +38,76 @@ class RiskMetrics:
         """Calculate Conditional Value at Risk (Expected Shortfall)"""
         var = RiskMetrics.calculate_var(returns, confidence)
         return float(returns[returns <= var].mean())
+    
+    @staticmethod
+    def calculate_rolling_sharpe_ratio(returns: pd.Series, window: int = 30, risk_free_rate: float = 0.02) -> pd.Series:
+        """
+        Calculate rolling Sharpe ratio.
+        
+        Args:
+            returns: Series of daily returns
+            window: Rolling window size in days
+            risk_free_rate: Annual risk-free rate
+            
+        Returns:
+            Series of rolling Sharpe ratios
+        """
+        rolling_mean = returns.rolling(window=window).mean() * 252
+        rolling_std = returns.rolling(window=window).std() * np.sqrt(252)
+        rolling_excess = rolling_mean - risk_free_rate
+        rolling_sharpe = rolling_excess / rolling_std
+        return rolling_sharpe.fillna(0)
+    
+    @staticmethod
+    def calculate_rolling_volatility(returns: pd.Series, window: int = 30) -> pd.Series:
+        """
+        Calculate rolling volatility.
+        
+        Args:
+            returns: Series of daily returns
+            window: Rolling window size in days
+            
+        Returns:
+            Series of rolling annualized volatility
+        """
+        rolling_vol = returns.rolling(window=window).std() * np.sqrt(252)
+        return rolling_vol.fillna(0)
+    
+    @staticmethod
+    def calculate_risk_decomposition(returns: pd.DataFrame, weights: np.ndarray) -> Dict[str, float]:
+        """
+        Calculate risk contribution of each asset to portfolio risk.
+        
+        Args:
+            returns: DataFrame of asset returns
+            weights: Portfolio weights array
+            
+        Returns:
+            Dictionary mapping ticker to risk contribution percentage
+        """
+        # Calculate covariance matrix
+        cov_matrix = returns.cov() * 252
+        
+        # Portfolio variance
+        portfolio_variance = np.dot(weights, np.dot(cov_matrix, weights))
+        portfolio_std = np.sqrt(portfolio_variance)
+        
+        if portfolio_std == 0:
+            return {ticker: 0.0 for ticker in returns.columns}
+        
+        # Marginal contribution to risk (MCR)
+        mcr = np.dot(cov_matrix, weights) / portfolio_std
+        
+        # Risk contribution = weight * MCR
+        risk_contributions = weights * mcr
+        
+        # Convert to percentages
+        total_contribution = np.sum(np.abs(risk_contributions))
+        if total_contribution == 0:
+            return {ticker: 0.0 for ticker in returns.columns}
+        
+        risk_decomp = {}
+        for i, ticker in enumerate(returns.columns):
+            risk_decomp[ticker] = float((risk_contributions[i] / total_contribution) * 100)
+        
+        return risk_decomp

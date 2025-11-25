@@ -1,14 +1,26 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from .schemas import PortfolioRequest, PortfolioResponse
+from .schemas import PortfolioRequest, PortfolioResponse, TickerSearchResponse, TickerInfo
 from .data_loader import DataLoader
 from .optimizer import PortfolioOptimizer
 from .metrics import RiskMetrics
 import logging
+import json
+import os
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Load ticker database
+TICKER_DB_PATH = Path(__file__).parent.parent / "data" / "tickers.json"
+TICKER_DB = []
+if TICKER_DB_PATH.exists():
+    with open(TICKER_DB_PATH, 'r') as f:
+        TICKER_DB = json.load(f)
+else:
+    logger.warning(f"Ticker database not found at {TICKER_DB_PATH}")
 
 # Create FastAPI app
 app = FastAPI(
@@ -92,6 +104,72 @@ async def optimize_portfolio(request: PortfolioRequest):
         # Get total leverage from metrics if available
         total_leverage = metrics.get("total_leverage", None)
         
+        # Prepare price history data
+        price_history = {}
+        for ticker in request.tickers:
+            if ticker in prices.columns:
+                price_history[ticker] = [
+                    {"date": str(date), "price": float(price)}
+                    for date, price in prices[ticker].items()
+                ]
+        
+        # Calculate portfolio cumulative returns
+        portfolio_cumulative = (1 + portfolio_returns).cumprod()
+        portfolio_returns_data = [
+            {"date": str(date), "value": float(value)}
+            for date, value in portfolio_cumulative.items()
+        ]
+        
+        # Calculate correlation matrix
+        correlation_matrix = {}
+        for i, ticker1 in enumerate(request.tickers):
+            correlation_matrix[ticker1] = {}
+            for j, ticker2 in enumerate(request.tickers):
+                if ticker1 in returns.columns and ticker2 in returns.columns:
+                    corr = float(returns[ticker1].corr(returns[ticker2]))
+                    correlation_matrix[ticker1][ticker2] = corr
+        
+        # Calculate efficient frontier
+        efficient_frontier = optimizer.calculate_efficient_frontier(num_points=50)
+        
+        # Calculate risk decomposition
+        risk_decomposition = RiskMetrics.calculate_risk_decomposition(returns, optimal_weights)
+        
+        # Calculate rolling metrics
+        rolling_sharpe_30 = RiskMetrics.calculate_rolling_sharpe_ratio(portfolio_returns, window=30)
+        rolling_sharpe_60 = RiskMetrics.calculate_rolling_sharpe_ratio(portfolio_returns, window=60)
+        rolling_sharpe_90 = RiskMetrics.calculate_rolling_sharpe_ratio(portfolio_returns, window=90)
+        rolling_vol_30 = RiskMetrics.calculate_rolling_volatility(portfolio_returns, window=30)
+        rolling_vol_60 = RiskMetrics.calculate_rolling_volatility(portfolio_returns, window=60)
+        rolling_vol_90 = RiskMetrics.calculate_rolling_volatility(portfolio_returns, window=90)
+        
+        rolling_metrics_data = {
+            "sharpe_30": [
+                {"date": str(date), "value": float(value)}
+                for date, value in rolling_sharpe_30.items()
+            ],
+            "sharpe_60": [
+                {"date": str(date), "value": float(value)}
+                for date, value in rolling_sharpe_60.items()
+            ],
+            "sharpe_90": [
+                {"date": str(date), "value": float(value)}
+                for date, value in rolling_sharpe_90.items()
+            ],
+            "volatility_30": [
+                {"date": str(date), "value": float(value)}
+                for date, value in rolling_vol_30.items()
+            ],
+            "volatility_60": [
+                {"date": str(date), "value": float(value)}
+                for date, value in rolling_vol_60.items()
+            ],
+            "volatility_90": [
+                {"date": str(date), "value": float(value)}
+                for date, value in rolling_vol_90.items()
+            ],
+        }
+        
         response = PortfolioResponse(
             weights=weights_dict,
             expected_return=expected_return,
@@ -100,7 +178,13 @@ async def optimize_portfolio(request: PortfolioRequest):
             sortino_ratio=sortino_ratio,
             calmar_ratio=calmar_ratio,
             max_drawdown=max_drawdown,
-            total_leverage=total_leverage
+            total_leverage=total_leverage,
+            price_history=price_history,
+            portfolio_returns=portfolio_returns_data,
+            correlation_matrix=correlation_matrix,
+            efficient_frontier=efficient_frontier,
+            rolling_metrics=rolling_metrics_data,
+            risk_decomposition=risk_decomposition
         )
         
         logger.info(f"Optimization successful. Sharpe ratio: {sharpe_ratio:.2f}")
@@ -114,6 +198,55 @@ async def optimize_portfolio(request: PortfolioRequest):
         raise HTTPException(status_code=500, detail=f"Optimization failed: {str(e)}")
 
 
+@app.get("/search/tickers", response_model=TickerSearchResponse)
+async def search_tickers(q: str = Query(..., min_length=1, description="Search query for ticker symbol or company name")):
+    """
+    Search for tickers by symbol or company name.
+    
+    Args:
+        q: Search query (ticker symbol or company name)
+        
+    Returns:
+        List of matching tickers with company names
+    """
+    if not TICKER_DB:
+        return TickerSearchResponse(results=[])
+    
+    query = q.upper().strip()
+    results = []
+    
+    for ticker_info in TICKER_DB:
+        symbol = ticker_info.get("symbol", "").upper()
+        name = ticker_info.get("name", "").upper()
+        
+        # Match if query is in symbol or name
+        if query in symbol or query in name:
+            # Prioritize exact symbol matches
+            score = 0
+            if symbol == query:
+                score = 100
+            elif symbol.startswith(query):
+                score = 50
+            elif query in symbol:
+                score = 30
+            elif query in name:
+                score = 20
+            
+            results.append({
+                "symbol": ticker_info["symbol"],
+                "name": ticker_info["name"],
+                "_score": score
+            })
+    
+    # Sort by score (exact matches first), then by symbol
+    results.sort(key=lambda x: (-x["_score"], x["symbol"]))
+    
+    # Remove score before returning
+    ticker_results = [TickerInfo(symbol=r["symbol"], name=r["name"]) for r in results[:20]]
+    
+    return TickerSearchResponse(results=ticker_results)
+
+
 @app.get("/health")
 async def health_check():
     """Detailed health check"""
@@ -123,6 +256,7 @@ async def health_check():
         "endpoints": [
             "/",
             "/optimize",
+            "/search/tickers",
             "/health",
             "/docs"
         ]

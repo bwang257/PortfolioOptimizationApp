@@ -1,86 +1,140 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import TickerList from '@/components/TickerList';
-import ObjectiveSelector from '@/components/ObjectiveSelector';
-import PortfolioTypeSelector from '@/components/PortfolioTypeSelector';
-import Loader from '@/components/Loader';
-import { optimizePortfolio, PortfolioRequest } from '@/lib/api';
+import { PortfolioResponse } from '@/lib/api';
+import PerformanceChart from '@/components/PerformanceChart';
+import DrawdownChart from '@/components/DrawdownChart';
+import EfficientFrontierChart from '@/components/EfficientFrontierChart';
+import RollingMetricsChart from '@/components/RollingMetricsChart';
+import CorrelationMatrix from '@/components/CorrelationMatrix';
+import PortfolioCompositionChart from '@/components/PortfolioCompositionChart';
+import RiskDecomposition from '@/components/RiskDecomposition';
+import MetricsTable from '@/components/ResultsCard';
 
-export default function Home() {
-  const [tickers, setTickers] = useState<string[]>([]);
-  const [objective, setObjective] = useState<'sharpe' | 'sortino' | 'calmar'>('sharpe');
-  const [portfolioType, setPortfolioType] = useState<'long_only' | 'long_short'>('long_only');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export default function ResultsPage() {
+  const [results, setResults] = useState<PortfolioResponse | null>(null);
+  const [backtestPeriod, setBacktestPeriod] = useState<string>('1Y');
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (tickers.length === 0) {
-      setError('Please add at least one ticker');
-      return;
+  useEffect(() => {
+    const stored = sessionStorage.getItem('portfolioResults');
+    const storedPeriod = sessionStorage.getItem('backtestPeriod');
+    if (stored) {
+      try {
+        setResults(JSON.parse(stored));
+        if (storedPeriod) {
+          setBacktestPeriod(storedPeriod);
+        }
+      } catch (err) {
+        console.error('Failed to parse results:', err);
+        router.push('/');
+      }
+    } else {
+      router.push('/');
     }
+  }, [router]);
 
-    setLoading(true);
-    setError(null);
+  if (!results) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-gray-600 dark:text-gray-400">Loading results...</div>
+      </div>
+    );
+  }
 
-    try {
-      const request: PortfolioRequest = {
-        tickers,
-        objective,
-        portfolio_type: portfolioType,
-      };
-
-      const results = await optimizePortfolio(request);
-      
-      // Store results in sessionStorage and navigate
-      sessionStorage.setItem('portfolioResults', JSON.stringify(results));
-      router.push('/results');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || err.message || 'Failed to optimize portfolio');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const tickers = Object.keys(results.weights);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Portfolio Optimizer
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Optimize your stock portfolio using advanced risk-adjusted metrics
-          </p>
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Optimization Results
+            </h1>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Backtest Period: {backtestPeriod}
+            </p>
+          </div>
+          <button
+            onClick={() => router.push('/')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            New Optimization
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 space-y-6">
-          <TickerList tickers={tickers} onChange={setTickers} />
-          
-          <ObjectiveSelector value={objective} onChange={setObjective} />
-          
-          <PortfolioTypeSelector value={portfolioType} onChange={setPortfolioType} />
+        {/* Key Metrics */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Key Metrics</h2>
+          <MetricsTable
+            expected_return={results.expected_return}
+            volatility={results.volatility}
+            sharpe_ratio={results.sharpe_ratio}
+            sortino_ratio={results.sortino_ratio}
+            calmar_ratio={results.calmar_ratio}
+            max_drawdown={results.max_drawdown}
+            total_leverage={results.total_leverage}
+          />
+        </div>
 
-          {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
-              <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
-            </div>
-          )}
+        {/* Portfolio Composition */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+          <PortfolioCompositionChart weights={results.weights} />
+        </div>
 
-          <button
-            type="submit"
-            disabled={loading || tickers.length === 0}
-            className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? 'Optimizing...' : 'Optimize Portfolio'}
-          </button>
+        {/* Performance Charts */}
+        {results.price_history && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+            <PerformanceChart 
+              priceHistory={results.price_history} 
+              portfolioReturns={results.portfolio_returns}
+            />
+          </div>
+        )}
 
-          {loading && <Loader />}
-        </form>
+        {/* Drawdown Chart */}
+        {results.portfolio_returns && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+            <DrawdownChart portfolioReturns={results.portfolio_returns} />
+          </div>
+        )}
+
+        {/* Efficient Frontier */}
+        {results.efficient_frontier && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+            <EfficientFrontierChart
+              efficientFrontier={results.efficient_frontier}
+              currentRisk={results.volatility}
+              currentReturn={results.expected_return}
+            />
+          </div>
+        )}
+
+        {/* Rolling Metrics */}
+        {results.rolling_metrics && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+            <RollingMetricsChart rollingMetrics={results.rolling_metrics} />
+          </div>
+        )}
+
+        {/* Correlation Matrix */}
+        {results.correlation_matrix && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+            <CorrelationMatrix 
+              correlationMatrix={results.correlation_matrix}
+              tickers={tickers}
+            />
+          </div>
+        )}
+
+        {/* Risk Decomposition */}
+        {results.risk_decomposition && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+            <RiskDecomposition riskDecomposition={results.risk_decomposition} />
+          </div>
+        )}
       </div>
     </div>
   );

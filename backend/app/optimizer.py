@@ -141,3 +141,78 @@ class PortfolioOptimizer:
             metrics["total_leverage"] = float(np.sum(np.abs(optimal_weights)))
         
         return optimal_weights, metrics
+    
+    def calculate_efficient_frontier(self, num_points: int = 50) -> List[Dict[str, float]]:
+        """
+        Calculate efficient frontier points.
+        
+        Args:
+            num_points: Number of points on the efficient frontier
+            
+        Returns:
+            List of dictionaries with 'risk' and 'return' keys
+        """
+        # Calculate expected returns and covariance matrix
+        mean_returns = self.returns.mean() * 252
+        cov_matrix = self.returns.cov() * 252
+        
+        # Find min and max expected returns
+        min_return = mean_returns.min()
+        max_return = mean_returns.max()
+        
+        # Generate target returns
+        target_returns = np.linspace(min_return, max_return, num_points)
+        
+        efficient_frontier = []
+        bounds = self._bounds()
+        
+        for target_return in target_returns:
+            # Minimize volatility for given target return
+            constraints = [
+                {
+                    'type': 'eq',
+                    'fun': lambda w: np.sum(w) - 1.0
+                },
+                {
+                    'type': 'eq',
+                    'fun': lambda w: np.dot(w, mean_returns) - target_return
+                }
+            ]
+            
+            if self.portfolio_type == "long_short":
+                constraints.append({
+                    'type': 'ineq',
+                    'fun': lambda w: 1.5 - np.sum(np.abs(w))
+                })
+            
+            # Objective: minimize portfolio variance
+            def portfolio_variance(weights):
+                return np.dot(weights.T, np.dot(cov_matrix, weights))
+            
+            # Initial guess
+            x0 = np.ones(self.n_assets) / self.n_assets
+            
+            try:
+                result = minimize(
+                    portfolio_variance,
+                    x0,
+                    method='SLSQP',
+                    bounds=bounds,
+                    constraints=constraints,
+                    options={'maxiter': 1000}
+                )
+                
+                if result.success:
+                    weights = result.x
+                    portfolio_return = float(np.dot(weights, mean_returns))
+                    portfolio_vol = float(np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights))))
+                    
+                    efficient_frontier.append({
+                        'risk': portfolio_vol,
+                        'return': portfolio_return
+                    })
+            except:
+                # Skip if optimization fails for this point
+                continue
+        
+        return efficient_frontier

@@ -1,0 +1,1474 @@
+[
+  {
+    "symbol": "AAPL",
+    "name": "Apple Inc."
+  },
+  {
+    "symbol": "ABBV",
+    "name": "AbbVie Inc."
+  },
+  {
+    "symbol": "ABNB",
+    "name": "Airbnb Inc."
+  },
+  {
+    "symbol": "ABT",
+    "name": "Abbott Laboratories"
+  },
+  {
+    "symbol": "ACHR",
+    "name": "Archer Aviation Inc."
+  },
+  {
+    "symbol": "ACM",
+    "name": "AECOM"
+  },
+  {
+    "symbol": "ACN",
+    "name": "Accenture plc"
+  },
+  {
+    "symbol": "ADBE",
+    "name": "Adobe Inc."
+  },
+  {
+    "symbol": "ADI",
+    "name": "Analog Devices Inc."
+  },
+  {
+    "symbol": "ADP",
+    "name": "Automatic Data Processing Inc."
+  },
+  {
+    "symbol": "AEM",
+    "name": "Agnico Eagle Mines Limited"
+  },
+  {
+    "symbol": "AFRM",
+    "name": "Affirm Holdings Inc."
+  },
+  {
+    "symbol": "AG",
+    "name": "First Majestic Silver Corp."
+  },
+  {
+    "symbol": "AGCO",
+    "name": "AGCO Corporation"
+  },
+  {
+    "symbol": "AGI",
+    "name": "Alamos Gold Inc."
+  },
+  {
+    "symbol": "AIR",
+    "name": "AAR Corp."
+  },
+  {
+    "symbol": "AMAT",
+    "name": "Applied Materials Inc."
+  },
+  {
+    "symbol": "AMD",
+    "name": "Advanced Micro Devices Inc."
+  },
+  {
+    "symbol": "AME",
+    "name": "AMETEK Inc."
+  },
+  {
+    "symbol": "AMGN",
+    "name": "Amgen Inc."
+  },
+  {
+    "symbol": "AMT",
+    "name": "American Tower Corporation"
+  },
+  {
+    "symbol": "AMZN",
+    "name": "Amazon.com Inc."
+  },
+  {
+    "symbol": "ANGI",
+    "name": "Angi Inc."
+  },
+  {
+    "symbol": "AOBC",
+    "name": "American Outdoor Brands Inc."
+  },
+  {
+    "symbol": "AOS",
+    "name": "A. O. Smith Corporation"
+  },
+  {
+    "symbol": "APA",
+    "name": "APA Corporation"
+  },
+  {
+    "symbol": "AR",
+    "name": "Argonaut Gold Inc."
+  },
+  {
+    "symbol": "ASM",
+    "name": "Avino Silver & Gold Mines Ltd."
+  },
+  {
+    "symbol": "ASML",
+    "name": "ASML Holding N.V."
+  },
+  {
+    "symbol": "ASTR",
+    "name": "Astra Space Inc."
+  },
+  {
+    "symbol": "ATI",
+    "name": "ATI Inc."
+  },
+  {
+    "symbol": "ATRO",
+    "name": "Astronics Corporation"
+  },
+  {
+    "symbol": "ATVI",
+    "name": "Activision Blizzard Inc."
+  },
+  {
+    "symbol": "AU",
+    "name": "AngloGold Ashanti Limited"
+  },
+  {
+    "symbol": "AVAV",
+    "name": "AeroVironment Inc."
+  },
+  {
+    "symbol": "AVGO",
+    "name": "Broadcom Inc."
+  },
+  {
+    "symbol": "AXP",
+    "name": "American Express Company"
+  },
+  {
+    "symbol": "BA",
+    "name": "The Boeing Company"
+  },
+  {
+    "symbol": "BABA",
+    "name": "Alibaba Group Holding Limited"
+  },
+  {
+    "symbol": "BAC",
+    "name": "Bank of America Corp"
+  },
+  {
+    "symbol": "BAL",
+    "name": "iPath Series B Bloomberg Cotton Subindex Total Return ETN"
+  },
+  {
+    "symbol": "BBY",
+    "name": "Best Buy Co. Inc."
+  },
+  {
+    "symbol": "BF.B",
+    "name": "Brown-Forman Corporation Class B"
+  },
+  {
+    "symbol": "BHP",
+    "name": "BHP Group Limited"
+  },
+  {
+    "symbol": "BIDU",
+    "name": "Baidu Inc."
+  },
+  {
+    "symbol": "BIG",
+    "name": "Big Lots Inc."
+  },
+  {
+    "symbol": "BJ",
+    "name": "BJ's Wholesale Club Holdings Inc."
+  },
+  {
+    "symbol": "BKNG",
+    "name": "Booking Holdings Inc."
+  },
+  {
+    "symbol": "BKR",
+    "name": "Baker Hughes Company"
+  },
+  {
+    "symbol": "BLL",
+    "name": "Ball Corporation"
+  },
+  {
+    "symbol": "BMBL",
+    "name": "Bumble Inc."
+  },
+  {
+    "symbol": "BMWYY",
+    "name": "Bayerische Motoren Werke AG"
+  },
+  {
+    "symbol": "BMY",
+    "name": "Bristol-Myers Squibb Company"
+  },
+  {
+    "symbol": "BRK.B",
+    "name": "Berkshire Hathaway Inc. Class B"
+  },
+  {
+    "symbol": "BYD",
+    "name": "Boyd Gaming Corporation"
+  },
+  {
+    "symbol": "CANE",
+    "name": "Teucrium Sugar Fund"
+  },
+  {
+    "symbol": "CAT",
+    "name": "Caterpillar Inc."
+  },
+  {
+    "symbol": "CCK",
+    "name": "Crown Holdings Inc."
+  },
+  {
+    "symbol": "CDE",
+    "name": "Coeur Mining Inc."
+  },
+  {
+    "symbol": "CDNS",
+    "name": "Cadence Design Systems Inc."
+  },
+  {
+    "symbol": "CE",
+    "name": "Celanese Corporation"
+  },
+  {
+    "symbol": "CF",
+    "name": "CF Industries Holdings Inc."
+  },
+  {
+    "symbol": "CHWY",
+    "name": "Chewy Inc."
+  },
+  {
+    "symbol": "CLF",
+    "name": "Cleveland-Cliffs Inc."
+  },
+  {
+    "symbol": "CMC",
+    "name": "Commercial Metals Company"
+  },
+  {
+    "symbol": "CMCSA",
+    "name": "Comcast Corporation"
+  },
+  {
+    "symbol": "CNHI",
+    "name": "CNH Industrial N.V."
+  },
+  {
+    "symbol": "COIN",
+    "name": "Coinbase Global Inc."
+  },
+  {
+    "symbol": "COP",
+    "name": "ConocoPhillips"
+  },
+  {
+    "symbol": "CORN",
+    "name": "Teucrium Corn Fund"
+  },
+  {
+    "symbol": "COST",
+    "name": "Costco Wholesale Corporation"
+  },
+  {
+    "symbol": "CPER",
+    "name": "United States Copper Index Fund"
+  },
+  {
+    "symbol": "CRM",
+    "name": "Salesforce Inc."
+  },
+  {
+    "symbol": "CRWD",
+    "name": "CrowdStrike Holdings Inc."
+  },
+  {
+    "symbol": "CSCO",
+    "name": "Cisco Systems Inc."
+  },
+  {
+    "symbol": "CTRA",
+    "name": "Coterra Energy Inc."
+  },
+  {
+    "symbol": "CVX",
+    "name": "Chevron Corporation"
+  },
+  {
+    "symbol": "CW",
+    "name": "Curtiss-Wright Corporation"
+  },
+  {
+    "symbol": "CZR",
+    "name": "Caesars Entertainment Inc."
+  },
+  {
+    "symbol": "DASH",
+    "name": "DoorDash Inc."
+  },
+  {
+    "symbol": "DBA",
+    "name": "Invesco DB Agriculture Fund"
+  },
+  {
+    "symbol": "DBB",
+    "name": "Invesco DB Base Metals Fund"
+  },
+  {
+    "symbol": "DBC",
+    "name": "Invesco DB Commodity Index Tracking Fund"
+  },
+  {
+    "symbol": "DBE",
+    "name": "Invesco DB Energy Fund"
+  },
+  {
+    "symbol": "DBO",
+    "name": "Invesco DB Oil Fund"
+  },
+  {
+    "symbol": "DBP",
+    "name": "Invesco DB Precious Metals Fund"
+  },
+  {
+    "symbol": "DCO",
+    "name": "Ducommun Incorporated"
+  },
+  {
+    "symbol": "DDAIF",
+    "name": "Daimler Truck Holding AG"
+  },
+  {
+    "symbol": "DDOG",
+    "name": "Datadog Inc."
+  },
+  {
+    "symbol": "DE",
+    "name": "Deere & Company"
+  },
+  {
+    "symbol": "DG",
+    "name": "Dollar General Corporation"
+  },
+  {
+    "symbol": "DHR",
+    "name": "Danaher Corporation"
+  },
+  {
+    "symbol": "DIS",
+    "name": "The Walt Disney Company"
+  },
+  {
+    "symbol": "DJP",
+    "name": "iPath Bloomberg Commodity Index Total Return ETN"
+  },
+  {
+    "symbol": "DKNG",
+    "name": "DraftKings Inc."
+  },
+  {
+    "symbol": "DLTR",
+    "name": "Dollar Tree Inc."
+  },
+  {
+    "symbol": "DOCN",
+    "name": "DigitalOcean Holdings Inc."
+  },
+  {
+    "symbol": "DOCU",
+    "name": "DocuSign Inc."
+  },
+  {
+    "symbol": "DOV",
+    "name": "Dover Corporation"
+  },
+  {
+    "symbol": "DOW",
+    "name": "Dow Inc."
+  },
+  {
+    "symbol": "DVN",
+    "name": "Devon Energy Corporation"
+  },
+  {
+    "symbol": "DY",
+    "name": "Dycom Industries Inc."
+  },
+  {
+    "symbol": "EA",
+    "name": "Electronic Arts Inc."
+  },
+  {
+    "symbol": "EGO",
+    "name": "Eldorado Gold Corporation"
+  },
+  {
+    "symbol": "EH",
+    "name": "EHang Holdings Limited"
+  },
+  {
+    "symbol": "ELR",
+    "name": "Eastern Platinum Limited"
+  },
+  {
+    "symbol": "EMN",
+    "name": "Eastman Chemical Company"
+  },
+  {
+    "symbol": "EMR",
+    "name": "Emerson Electric Co."
+  },
+  {
+    "symbol": "EMX",
+    "name": "EMX Royalty Corporation"
+  },
+  {
+    "symbol": "EOG",
+    "name": "EOG Resources Inc."
+  },
+  {
+    "symbol": "EQIX",
+    "name": "Equinix Inc."
+  },
+  {
+    "symbol": "ERI",
+    "name": "Eldorado Resorts Inc."
+  },
+  {
+    "symbol": "ESLT",
+    "name": "Elbit Systems Ltd."
+  },
+  {
+    "symbol": "ESTC",
+    "name": "Elastic N.V."
+  },
+  {
+    "symbol": "ETN",
+    "name": "Eaton Corporation plc"
+  },
+  {
+    "symbol": "ETSY",
+    "name": "Etsy Inc."
+  },
+  {
+    "symbol": "EVRI",
+    "name": "Everi Holdings Inc."
+  },
+  {
+    "symbol": "EXK",
+    "name": "Endeavour Silver Corp."
+  },
+  {
+    "symbol": "EXPE",
+    "name": "Expedia Group Inc."
+  },
+  {
+    "symbol": "F",
+    "name": "Ford Motor Company"
+  },
+  {
+    "symbol": "FANG",
+    "name": "Diamondback Energy Inc."
+  },
+  {
+    "symbol": "FAST",
+    "name": "Fastenal Company"
+  },
+  {
+    "symbol": "FCX",
+    "name": "Freeport-McMoRan Inc."
+  },
+  {
+    "symbol": "FIVE",
+    "name": "Five Below Inc."
+  },
+  {
+    "symbol": "FLOW",
+    "name": "SPX FLOW Inc."
+  },
+  {
+    "symbol": "FLR",
+    "name": "Fluor Corporation"
+  },
+  {
+    "symbol": "FLS",
+    "name": "Flowserve Corporation"
+  },
+  {
+    "symbol": "FLUT",
+    "name": "Flutter Entertainment plc"
+  },
+  {
+    "symbol": "FM",
+    "name": "First Quantum Minerals Ltd."
+  },
+  {
+    "symbol": "FMC",
+    "name": "FMC Corporation"
+  },
+  {
+    "symbol": "FNV",
+    "name": "Franco-Nevada Corporation"
+  },
+  {
+    "symbol": "FROG",
+    "name": "JFrog Ltd."
+  },
+  {
+    "symbol": "FSM",
+    "name": "Fortuna Silver Mines Inc."
+  },
+  {
+    "symbol": "FTNT",
+    "name": "Fortinet Inc."
+  },
+  {
+    "symbol": "FTV",
+    "name": "Fortive Corporation"
+  },
+  {
+    "symbol": "GD",
+    "name": "General Dynamics Corporation"
+  },
+  {
+    "symbol": "GE",
+    "name": "General Electric Company"
+  },
+  {
+    "symbol": "GFI",
+    "name": "Gold Fields Limited"
+  },
+  {
+    "symbol": "GGB",
+    "name": "Gerdau S.A."
+  },
+  {
+    "symbol": "GGG",
+    "name": "Graco Inc."
+  },
+  {
+    "symbol": "GILD",
+    "name": "Gilead Sciences Inc."
+  },
+  {
+    "symbol": "GLD",
+    "name": "SPDR Gold Trust"
+  },
+  {
+    "symbol": "GM",
+    "name": "General Motors Company"
+  },
+  {
+    "symbol": "GMBL",
+    "name": "Esports Entertainment Group Inc."
+  },
+  {
+    "symbol": "GOLD",
+    "name": "Barrick Gold Corporation"
+  },
+  {
+    "symbol": "GOOG",
+    "name": "Alphabet Inc. Class C"
+  },
+  {
+    "symbol": "GOOGL",
+    "name": "Alphabet Inc. Class A"
+  },
+  {
+    "symbol": "GORO",
+    "name": "Gold Resource Corporation"
+  },
+  {
+    "symbol": "GPK",
+    "name": "Graphic Packaging Holding Company"
+  },
+  {
+    "symbol": "GRAB",
+    "name": "Grab Holdings Limited"
+  },
+  {
+    "symbol": "GROY",
+    "name": "Gold Royalty Corp."
+  },
+  {
+    "symbol": "GS",
+    "name": "The Goldman Sachs Group Inc."
+  },
+  {
+    "symbol": "GSG",
+    "name": "iShares S&P GSCI Commodity-Indexed Trust"
+  },
+  {
+    "symbol": "GSV",
+    "name": "Gold Standard Ventures Corp."
+  },
+  {
+    "symbol": "GTLB",
+    "name": "GitLab Inc."
+  },
+  {
+    "symbol": "GWW",
+    "name": "W.W. Grainger Inc."
+  },
+  {
+    "symbol": "H",
+    "name": "Hyatt Hotels Corporation"
+  },
+  {
+    "symbol": "HAL",
+    "name": "Halliburton Company"
+  },
+  {
+    "symbol": "HBM",
+    "name": "Hudbay Minerals Inc."
+  },
+  {
+    "symbol": "HD",
+    "name": "The Home Depot Inc."
+  },
+  {
+    "symbol": "HEI",
+    "name": "HEICO Corporation"
+  },
+  {
+    "symbol": "HELI",
+    "name": "Heliogen Inc."
+  },
+  {
+    "symbol": "HES",
+    "name": "Hess Corporation"
+  },
+  {
+    "symbol": "HII",
+    "name": "Huntington Ingalls Industries Inc."
+  },
+  {
+    "symbol": "HL",
+    "name": "Hecla Mining Company"
+  },
+  {
+    "symbol": "HLT",
+    "name": "Hilton Worldwide Holdings Inc."
+  },
+  {
+    "symbol": "HMC",
+    "name": "Honda Motor Co. Ltd."
+  },
+  {
+    "symbol": "HMY",
+    "name": "Harmony Gold Mining Company Limited"
+  },
+  {
+    "symbol": "HON",
+    "name": "Honeywell International Inc."
+  },
+  {
+    "symbol": "HOOD",
+    "name": "Robinhood Markets Inc."
+  },
+  {
+    "symbol": "HWM",
+    "name": "Howmet Aerospace Inc."
+  },
+  {
+    "symbol": "HXL",
+    "name": "Hexcel Corporation"
+  },
+  {
+    "symbol": "IAC",
+    "name": "IAC Inc."
+  },
+  {
+    "symbol": "IAG",
+    "name": "Iamgold Corporation"
+  },
+  {
+    "symbol": "IAU",
+    "name": "iShares Gold Trust"
+  },
+  {
+    "symbol": "IBM",
+    "name": "International Business Machines Corporation"
+  },
+  {
+    "symbol": "IEX",
+    "name": "IDEX Corporation"
+  },
+  {
+    "symbol": "IGT",
+    "name": "International Game Technology PLC"
+  },
+  {
+    "symbol": "INTC",
+    "name": "Intel Corporation"
+  },
+  {
+    "symbol": "INTU",
+    "name": "Intuit Inc."
+  },
+  {
+    "symbol": "IP",
+    "name": "International Paper Company"
+  },
+  {
+    "symbol": "IR",
+    "name": "Ingersoll Rand Inc."
+  },
+  {
+    "symbol": "ISRG",
+    "name": "Intuitive Surgical Inc."
+  },
+  {
+    "symbol": "ITT",
+    "name": "ITT Inc."
+  },
+  {
+    "symbol": "ITW",
+    "name": "Illinois Tool Works Inc."
+  },
+  {
+    "symbol": "IVN",
+    "name": "Ivanhoe Mines Ltd."
+  },
+  {
+    "symbol": "J",
+    "name": "Jacobs Engineering Group Inc."
+  },
+  {
+    "symbol": "JD",
+    "name": "JD.com Inc."
+  },
+  {
+    "symbol": "JJM",
+    "name": "iPath Series B Bloomberg Industrial Metals Subindex Total Return ETN"
+  },
+  {
+    "symbol": "JJN",
+    "name": "iPath Series B Bloomberg Nickel Subindex Total Return ETN"
+  },
+  {
+    "symbol": "JJT",
+    "name": "iPath Series B Bloomberg Tin Subindex Total Return ETN"
+  },
+  {
+    "symbol": "JJU",
+    "name": "iPath Series B Bloomberg Aluminum Subindex Total Return ETN"
+  },
+  {
+    "symbol": "JNJ",
+    "name": "Johnson & Johnson"
+  },
+  {
+    "symbol": "JO",
+    "name": "iPath Series B Bloomberg Coffee Subindex Total Return ETN"
+  },
+  {
+    "symbol": "JOBY",
+    "name": "Joby Aviation Inc."
+  },
+  {
+    "symbol": "JPM",
+    "name": "JPMorgan Chase & Co."
+  },
+  {
+    "symbol": "KBR",
+    "name": "KBR Inc."
+  },
+  {
+    "symbol": "KGC",
+    "name": "Kinross Gold Corporation"
+  },
+  {
+    "symbol": "KLAC",
+    "name": "KLA Corporation"
+  },
+  {
+    "symbol": "KNT",
+    "name": "K92 Mining Inc."
+  },
+  {
+    "symbol": "KTOS",
+    "name": "Kratos Defense & Security Solutions Inc."
+  },
+  {
+    "symbol": "LCID",
+    "name": "Lucid Group Inc."
+  },
+  {
+    "symbol": "LD",
+    "name": "iPath DJ-UBS Lead Subindex Total Return ETN"
+  },
+  {
+    "symbol": "LHX",
+    "name": "L3Harris Technologies Inc."
+  },
+  {
+    "symbol": "LI",
+    "name": "Li Auto Inc."
+  },
+  {
+    "symbol": "LILM",
+    "name": "Lilium N.V."
+  },
+  {
+    "symbol": "LIN",
+    "name": "Linde plc"
+  },
+  {
+    "symbol": "LMT",
+    "name": "Lockheed Martin Corporation"
+  },
+  {
+    "symbol": "LNW",
+    "name": "Light & Wonder Inc."
+  },
+  {
+    "symbol": "LOW",
+    "name": "Lowe's Companies Inc."
+  },
+  {
+    "symbol": "LUG",
+    "name": "Lundin Gold Inc."
+  },
+  {
+    "symbol": "LUN",
+    "name": "Lundin Mining Corporation"
+  },
+  {
+    "symbol": "LVS",
+    "name": "Las Vegas Sands Corp."
+  },
+  {
+    "symbol": "LYB",
+    "name": "LyondellBasell Industries N.V."
+  },
+  {
+    "symbol": "LYFT",
+    "name": "Lyft Inc."
+  },
+  {
+    "symbol": "MA",
+    "name": "Mastercard Incorporated"
+  },
+  {
+    "symbol": "MAR",
+    "name": "Marriott International Inc."
+  },
+  {
+    "symbol": "MCHP",
+    "name": "Microchip Technology Incorporated"
+  },
+  {
+    "symbol": "MDB",
+    "name": "MongoDB Inc."
+  },
+  {
+    "symbol": "META",
+    "name": "Meta Platforms Inc."
+  },
+  {
+    "symbol": "MGM",
+    "name": "MGM Resorts International"
+  },
+  {
+    "symbol": "MGPI",
+    "name": "MGP Ingredients Inc."
+  },
+  {
+    "symbol": "MOS",
+    "name": "The Mosaic Company"
+  },
+  {
+    "symbol": "MPC",
+    "name": "Marathon Petroleum Corporation"
+  },
+  {
+    "symbol": "MRK",
+    "name": "Merck & Co. Inc."
+  },
+  {
+    "symbol": "MRO",
+    "name": "Marathon Oil Corporation"
+  },
+  {
+    "symbol": "MSFT",
+    "name": "Microsoft Corporation"
+  },
+  {
+    "symbol": "MSM",
+    "name": "MSC Industrial Direct Co. Inc."
+  },
+  {
+    "symbol": "MTA",
+    "name": "Metalla Royalty & Streaming Ltd."
+  },
+  {
+    "symbol": "MTCH",
+    "name": "Match Group Inc."
+  },
+  {
+    "symbol": "MTZ",
+    "name": "MasTec Inc."
+  },
+  {
+    "symbol": "MU",
+    "name": "Micron Technology Inc."
+  },
+  {
+    "symbol": "MUX",
+    "name": "McEwen Mining Inc."
+  },
+  {
+    "symbol": "NAGS",
+    "name": "Teucrium Agricultural Fund"
+  },
+  {
+    "symbol": "NEE",
+    "name": "NextEra Energy Inc."
+  },
+  {
+    "symbol": "NEM",
+    "name": "Newmont Corporation"
+  },
+  {
+    "symbol": "NET",
+    "name": "Cloudflare Inc."
+  },
+  {
+    "symbol": "NFLX",
+    "name": "Netflix Inc."
+  },
+  {
+    "symbol": "NG",
+    "name": "NovaGold Resources Inc."
+  },
+  {
+    "symbol": "NIB",
+    "name": "iPath Series B Bloomberg Cocoa Subindex Total Return ETN"
+  },
+  {
+    "symbol": "NIO",
+    "name": "NIO Inc."
+  },
+  {
+    "symbol": "NKE",
+    "name": "Nike Inc."
+  },
+  {
+    "symbol": "NOC",
+    "name": "Northrop Grumman Corporation"
+  },
+  {
+    "symbol": "NTR",
+    "name": "Nutrien Ltd."
+  },
+  {
+    "symbol": "NUE",
+    "name": "Nucor Corporation"
+  },
+  {
+    "symbol": "NVDA",
+    "name": "NVIDIA Corporation"
+  },
+  {
+    "symbol": "NXPI",
+    "name": "NXP Semiconductors N.V."
+  },
+  {
+    "symbol": "OGC",
+    "name": "Oceanagold Corporation"
+  },
+  {
+    "symbol": "OKTA",
+    "name": "Okta Inc."
+  },
+  {
+    "symbol": "OLLI",
+    "name": "Ollie's Bargain Outlet Holdings Inc."
+  },
+  {
+    "symbol": "OLN",
+    "name": "Olin Corporation"
+  },
+  {
+    "symbol": "OR",
+    "name": "Osisko Gold Royalties Ltd"
+  },
+  {
+    "symbol": "OUNZ",
+    "name": "VanEck Merk Gold Trust"
+  },
+  {
+    "symbol": "OVV",
+    "name": "Ovintiv Inc."
+  },
+  {
+    "symbol": "PAAS",
+    "name": "Pan American Silver Corp."
+  },
+  {
+    "symbol": "PALL",
+    "name": "abrdn Physical Palladium Shares ETF"
+  },
+  {
+    "symbol": "PANW",
+    "name": "Palo Alto Networks Inc."
+  },
+  {
+    "symbol": "PDD",
+    "name": "PDD Holdings Inc."
+  },
+  {
+    "symbol": "PENN",
+    "name": "Penn Entertainment Inc."
+  },
+  {
+    "symbol": "PEP",
+    "name": "PepsiCo Inc."
+  },
+  {
+    "symbol": "PFE",
+    "name": "Pfizer Inc."
+  },
+  {
+    "symbol": "PG",
+    "name": "The Procter & Gamble Company"
+  },
+  {
+    "symbol": "PH",
+    "name": "Parker-Hannifin Corporation"
+  },
+  {
+    "symbol": "PKG",
+    "name": "Packaging Corporation of America"
+  },
+  {
+    "symbol": "PLG",
+    "name": "Platinum Group Metals Ltd."
+  },
+  {
+    "symbol": "PM",
+    "name": "Philip Morris International Inc."
+  },
+  {
+    "symbol": "PNR",
+    "name": "Pentair plc"
+  },
+  {
+    "symbol": "PPLT",
+    "name": "abrdn Physical Platinum Shares ETF"
+  },
+  {
+    "symbol": "PSX",
+    "name": "Phillips 66"
+  },
+  {
+    "symbol": "PTON",
+    "name": "Peloton Interactive Inc."
+  },
+  {
+    "symbol": "PWR",
+    "name": "Quanta Services Inc."
+  },
+  {
+    "symbol": "PYPL",
+    "name": "PayPal Holdings Inc."
+  },
+  {
+    "symbol": "QCOM",
+    "name": "QUALCOMM Incorporated"
+  },
+  {
+    "symbol": "RBC",
+    "name": "RBC Bearings Incorporated"
+  },
+  {
+    "symbol": "RBLX",
+    "name": "Roblox Corporation"
+  },
+  {
+    "symbol": "REGN",
+    "name": "Regeneron Pharmaceuticals Inc."
+  },
+  {
+    "symbol": "RGLD",
+    "name": "Royal Gold Inc."
+  },
+  {
+    "symbol": "RGR",
+    "name": "Sturm Ruger & Company Inc."
+  },
+  {
+    "symbol": "RIO",
+    "name": "Rio Tinto Group"
+  },
+  {
+    "symbol": "RIVN",
+    "name": "Rivian Automotive Inc."
+  },
+  {
+    "symbol": "RKLB",
+    "name": "Rocket Lab USA Inc."
+  },
+  {
+    "symbol": "ROK",
+    "name": "Rockwell Automation Inc."
+  },
+  {
+    "symbol": "RPD",
+    "name": "Rapid7 Inc."
+  },
+  {
+    "symbol": "RS",
+    "name": "Reliance Steel & Aluminum Co."
+  },
+  {
+    "symbol": "RSI",
+    "name": "Rush Street Interactive Inc."
+  },
+  {
+    "symbol": "RTX",
+    "name": "RTX Corporation"
+  },
+  {
+    "symbol": "SAM",
+    "name": "The Boston Beer Company Inc."
+  },
+  {
+    "symbol": "SAND",
+    "name": "Sandstorm Gold Ltd."
+  },
+  {
+    "symbol": "SBUX",
+    "name": "Starbucks Corporation"
+  },
+  {
+    "symbol": "SCCO",
+    "name": "Southern Copper Corporation"
+  },
+  {
+    "symbol": "SGG",
+    "name": "iPath Series B Bloomberg Sugar Subindex Total Return ETN"
+  },
+  {
+    "symbol": "SGMS",
+    "name": "Scientific Games Corporation"
+  },
+  {
+    "symbol": "SGOL",
+    "name": "abrdn Physical Gold Shares ETF"
+  },
+  {
+    "symbol": "SHOP",
+    "name": "Shopify Inc."
+  },
+  {
+    "symbol": "SID",
+    "name": "Companhia Sider\u00fargica Nacional"
+  },
+  {
+    "symbol": "SIVR",
+    "name": "abrdn Physical Silver Shares ETF"
+  },
+  {
+    "symbol": "SLB",
+    "name": "Schlumberger Limited"
+  },
+  {
+    "symbol": "SLGN",
+    "name": "Silgan Holdings Inc."
+  },
+  {
+    "symbol": "SLV",
+    "name": "iShares Silver Trust"
+  },
+  {
+    "symbol": "SNOW",
+    "name": "Snowflake Inc."
+  },
+  {
+    "symbol": "SNPS",
+    "name": "Synopsys Inc."
+  },
+  {
+    "symbol": "SOFI",
+    "name": "SoFi Technologies Inc."
+  },
+  {
+    "symbol": "SOYB",
+    "name": "Teucrium Soybean Fund"
+  },
+  {
+    "symbol": "SPCE",
+    "name": "Virgin Galactic Holdings Inc."
+  },
+  {
+    "symbol": "SPGI",
+    "name": "S&P Global Inc."
+  },
+  {
+    "symbol": "SPR",
+    "name": "Spirit AeroSystems Holdings Inc."
+  },
+  {
+    "symbol": "SQ",
+    "name": "Block Inc."
+  },
+  {
+    "symbol": "SSRM",
+    "name": "SSR Mining Inc."
+  },
+  {
+    "symbol": "STLA",
+    "name": "Stellantis N.V."
+  },
+  {
+    "symbol": "STLD",
+    "name": "Steel Dynamics Inc."
+  },
+  {
+    "symbol": "STZ",
+    "name": "Constellation Brands Inc."
+  },
+  {
+    "symbol": "SWBI",
+    "name": "Smith & Wesson Brands Inc."
+  },
+  {
+    "symbol": "SWK",
+    "name": "Stanley Black & Decker Inc."
+  },
+  {
+    "symbol": "T",
+    "name": "AT&T Inc."
+  },
+  {
+    "symbol": "TAGS",
+    "name": "Teucrium Agricultural Strategy Fund"
+  },
+  {
+    "symbol": "TAHO",
+    "name": "Tahoe Resources Inc."
+  },
+  {
+    "symbol": "TAP",
+    "name": "Molson Coors Beverage Company"
+  },
+  {
+    "symbol": "TDG",
+    "name": "TransDigm Group Incorporated"
+  },
+  {
+    "symbol": "TEAM",
+    "name": "Atlassian Corporation"
+  },
+  {
+    "symbol": "TECK",
+    "name": "Teck Resources Limited"
+  },
+  {
+    "symbol": "TGI",
+    "name": "Triumph Group Inc."
+  },
+  {
+    "symbol": "TGT",
+    "name": "Target Corporation"
+  },
+  {
+    "symbol": "TILL",
+    "name": "Teucrium Wheat Fund"
+  },
+  {
+    "symbol": "TM",
+    "name": "Toyota Motor Corporation"
+  },
+  {
+    "symbol": "TMO",
+    "name": "Thermo Fisher Scientific Inc."
+  },
+  {
+    "symbol": "TRIP",
+    "name": "Tripadvisor Inc."
+  },
+  {
+    "symbol": "TS",
+    "name": "Tenaris S.A."
+  },
+  {
+    "symbol": "TSLA",
+    "name": "Tesla Inc."
+  },
+  {
+    "symbol": "TTC",
+    "name": "The Toro Company"
+  },
+  {
+    "symbol": "TTD",
+    "name": "The Trade Desk Inc."
+  },
+  {
+    "symbol": "TTWO",
+    "name": "Take-Two Interactive Software Inc."
+  },
+  {
+    "symbol": "TX",
+    "name": "Ternium S.A."
+  },
+  {
+    "symbol": "TXN",
+    "name": "Texas Instruments Incorporated"
+  },
+  {
+    "symbol": "TXT",
+    "name": "Textron Inc."
+  },
+  {
+    "symbol": "U",
+    "name": "Unity Software Inc."
+  },
+  {
+    "symbol": "UBER",
+    "name": "Uber Technologies Inc."
+  },
+  {
+    "symbol": "UNH",
+    "name": "UnitedHealth Group Incorporated"
+  },
+  {
+    "symbol": "UPS",
+    "name": "United Parcel Service Inc."
+  },
+  {
+    "symbol": "UPST",
+    "name": "Upstart Holdings Inc."
+  },
+  {
+    "symbol": "USCI",
+    "name": "United States Commodity Index Fund"
+  },
+  {
+    "symbol": "UTX",
+    "name": "United Technologies Corporation"
+  },
+  {
+    "symbol": "V",
+    "name": "Visa Inc."
+  },
+  {
+    "symbol": "VALE",
+    "name": "Vale S.A."
+  },
+  {
+    "symbol": "VLO",
+    "name": "Valero Energy Corporation"
+  },
+  {
+    "symbol": "VMI",
+    "name": "Valmont Industries Inc."
+  },
+  {
+    "symbol": "VSTO",
+    "name": "Vista Outdoor Inc."
+  },
+  {
+    "symbol": "VWAGY",
+    "name": "Volkswagen AG"
+  },
+  {
+    "symbol": "VZ",
+    "name": "Verizon Communications Inc."
+  },
+  {
+    "symbol": "W",
+    "name": "Wayfair Inc."
+  },
+  {
+    "symbol": "WCC",
+    "name": "WESCO International Inc."
+  },
+  {
+    "symbol": "WEAT",
+    "name": "Teucrium Wheat Fund"
+  },
+  {
+    "symbol": "WFC",
+    "name": "Wells Fargo & Company"
+  },
+  {
+    "symbol": "WH",
+    "name": "Wyndham Hotels & Resorts Inc."
+  },
+  {
+    "symbol": "WLK",
+    "name": "Westlake Corporation"
+  },
+  {
+    "symbol": "WMT",
+    "name": "Walmart Inc."
+  },
+  {
+    "symbol": "WOR",
+    "name": "Worthington Industries Inc."
+  },
+  {
+    "symbol": "WPM",
+    "name": "Wheaton Precious Metals Corp."
+  },
+  {
+    "symbol": "WRK",
+    "name": "WestRock Company"
+  },
+  {
+    "symbol": "WTS",
+    "name": "Watts Water Technologies Inc."
+  },
+  {
+    "symbol": "WWD",
+    "name": "Woodward Inc."
+  },
+  {
+    "symbol": "WYNN",
+    "name": "Wynn Resorts Limited"
+  },
+  {
+    "symbol": "X",
+    "name": "United States Steel Corporation"
+  },
+  {
+    "symbol": "XOM",
+    "name": "Exxon Mobil Corporation"
+  },
+  {
+    "symbol": "XPEV",
+    "name": "XPeng Inc."
+  },
+  {
+    "symbol": "ZBRA",
+    "name": "Zebra Technologies Corporation"
+  },
+  {
+    "symbol": "ZEUS",
+    "name": "Olympic Steel Inc."
+  },
+  {
+    "symbol": "ZM",
+    "name": "Zoom Video Communications Inc."
+  },
+  {
+    "symbol": "ZS",
+    "name": "Zscaler Inc."
+  }
+]

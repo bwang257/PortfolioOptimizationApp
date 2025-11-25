@@ -1,36 +1,186 @@
-import axios from 'axios';
+'use client';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import { useState, useEffect, useRef } from 'react';
+import { searchTickers, TickerInfo } from '@/lib/api';
 
-export interface PortfolioRequest {
+interface TickerListProps {
   tickers: string[];
-  objective: 'sharpe' | 'sortino' | 'calmar';
-  portfolio_type: 'long_only' | 'long_short';
-  lookback_days?: number;
+  onChange: (tickers: string[]) => void;
+  maxTickers?: number;
 }
 
-export interface PortfolioResponse {
-  weights: Record<string, number>;
-  expected_return: number;
-  volatility: number;
-  sharpe_ratio: number | null;
-  sortino_ratio: number | null;
-  calmar_ratio: number | null;
-  max_drawdown: number | null;
-  total_leverage: number | null;
-}
+export default function TickerList({ tickers, onChange, maxTickers = 30 }: TickerListProps) {
+  const [inputValue, setInputValue] = useState('');
+  const [suggestions, setSuggestions] = useState<TickerInfo[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-export const optimizePortfolio = async (
-  request: PortfolioRequest
-): Promise<PortfolioResponse> => {
-  const response = await axios.post<PortfolioResponse>(
-    `${API_BASE_URL}/optimize-portfolio`,
-    request
+  useEffect(() => {
+    if (inputValue.trim().length >= 1) {
+      // Debounce search
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      
+      debounceTimerRef.current = setTimeout(async () => {
+        try {
+          const results = await searchTickers(inputValue);
+          setSuggestions(results);
+          setShowSuggestions(true);
+          setSelectedIndex(-1);
+        } catch (error) {
+          console.error('Error searching tickers:', error);
+          setSuggestions([]);
+        }
+      }, 300);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [inputValue]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleAdd = (ticker?: string) => {
+    const tickerToAdd = ticker || inputValue.trim().toUpperCase();
+    if (tickerToAdd && !tickers.includes(tickerToAdd) && tickers.length < maxTickers) {
+      onChange([...tickers, tickerToAdd]);
+      setInputValue('');
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleRemove = (tickerToRemove: string) => {
+    onChange(tickers.filter(t => t !== tickerToRemove));
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+        handleAdd(suggestions[selectedIndex].symbol);
+      } else {
+        handleAdd();
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex((prev) => 
+        prev < suggestions.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSuggestionClick = (ticker: TickerInfo) => {
+    handleAdd(ticker.symbol);
+  };
+
+  return (
+    <div className="space-y-2 relative">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        Stock Tickers (max {maxTickers})
+      </label>
+      <div className="flex gap-2 relative">
+        <div className="flex-1 relative">
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyPress}
+            onFocus={() => {
+              if (inputValue.trim().length >= 1 && suggestions.length > 0) {
+                setShowSuggestions(true);
+              }
+            }}
+            placeholder="Type ticker symbol (e.g., AAPL) and click Add or press Enter"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+            disabled={tickers.length >= maxTickers}
+          />
+          {showSuggestions && suggestions.length > 0 && (
+            <div
+              ref={suggestionsRef}
+              className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-auto"
+            >
+              {suggestions.map((ticker, index) => (
+                <div
+                  key={ticker.symbol}
+                  onClick={() => handleSuggestionClick(ticker)}
+                  className={`px-4 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 ${
+                    index === selectedIndex ? 'bg-blue-100 dark:bg-gray-700' : ''
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {ticker.symbol}
+                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {ticker.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <button
+          onClick={() => handleAdd()}
+          disabled={!inputValue.trim() || tickers.length >= maxTickers}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          Add
+        </button>
+      </div>
+      {tickers.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {tickers.map((ticker) => (
+            <span
+              key={ticker}
+              className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+            >
+              {ticker}
+              <button
+                onClick={() => handleRemove(ticker)}
+                className="ml-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      {tickers.length === 0 && (
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          No tickers added yet. Type a ticker symbol above and click "Add" or press Enter to add it.
+        </p>
+      )}
+    </div>
   );
-  return response.data;
-};
-
-export const healthCheck = async (): Promise<{ status: string }> => {
-  const response = await axios.get(`${API_BASE_URL}/health`);
-  return response.data;
-};
+}
