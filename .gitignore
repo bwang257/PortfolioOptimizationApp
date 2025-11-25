@@ -2,6 +2,10 @@
 node_modules/
 frontend/node_modules/
 backend/venv/
+.next/
+dist/
+out/
+
 
 # Python
 __pycache__/
