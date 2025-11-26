@@ -59,14 +59,14 @@ export default function ResultsPage() {
           </div>
           <button
             onClick={() => router.push('/')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 transition-smooth hover-lift shadow-md hover:shadow-lg"
           >
             New Optimization
           </button>
         </div>
 
         {/* Key Metrics */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter">
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Key Metrics</h2>
           <MetricsTable
             expected_return={results.expected_return}
@@ -80,13 +80,13 @@ export default function ResultsPage() {
         </div>
 
         {/* Portfolio Composition */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter" style={{ animationDelay: '0.1s' }}>
           <PortfolioCompositionChart weights={results.weights} />
         </div>
 
         {/* Performance Charts */}
         {results.price_history && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter chart-container-enter" style={{ animationDelay: '0.2s' }}>
             <PerformanceChart 
               priceHistory={results.price_history} 
               portfolioReturns={results.portfolio_returns}
@@ -96,14 +96,14 @@ export default function ResultsPage() {
 
         {/* Drawdown Chart */}
         {results.portfolio_returns && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter chart-container-enter" style={{ animationDelay: '0.3s' }}>
             <DrawdownChart portfolioReturns={results.portfolio_returns} />
           </div>
         )}
 
         {/* Efficient Frontier */}
         {results.efficient_frontier && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter chart-container-enter" style={{ animationDelay: '0.4s' }}>
             <EfficientFrontierChart
               efficientFrontier={results.efficient_frontier}
               currentRisk={results.volatility}
@@ -114,14 +114,14 @@ export default function ResultsPage() {
 
         {/* Rolling Metrics */}
         {results.rolling_metrics && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter chart-container-enter" style={{ animationDelay: '0.5s' }}>
             <RollingMetricsChart rollingMetrics={results.rolling_metrics} />
           </div>
         )}
 
         {/* Correlation Matrix */}
         {results.correlation_matrix && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter" style={{ animationDelay: '0.6s' }}>
             <CorrelationMatrix 
               correlationMatrix={results.correlation_matrix}
               tickers={tickers}
@@ -131,7 +131,7 @@ export default function ResultsPage() {
 
         {/* Risk Decomposition */}
         {results.risk_decomposition && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter chart-container-enter" style={{ animationDelay: '0.7s' }}>
             <RiskDecomposition riskDecomposition={results.risk_decomposition} />
           </div>
         )}

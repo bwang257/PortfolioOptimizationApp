@@ -32,10 +32,11 @@ export default function MetricsTable({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {metrics.map((metric) => (
+      {metrics.map((metric, index) => (
         <div 
           key={metric.label} 
-          className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden"
+          className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-smooth hover-lift cursor-default"
+          style={{ animationDelay: `${index * 0.05}s` }}
         >
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 break-words">
             {metric.label}

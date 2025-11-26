@@ -14,10 +14,10 @@ export default function PortfolioTypeSelector({ value, onChange }: PortfolioType
       <div className="space-y-2">
         <label
           onClick={() => onChange('long_only')}
-          className={`flex items-center p-3 border rounded-md cursor-pointer transition-colors ${
+          className={`flex items-center p-3 border rounded-md cursor-pointer transition-smooth hover-lift ${
             value === 'long_only'
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-              : 'border-gray-300 hover:border-gray-400 dark:border-gray-600'
+              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
+              : 'border-gray-300 hover:border-gray-400 dark:border-gray-600 hover:shadow-sm'
           }`}
         >
           <input
@@ -38,10 +38,10 @@ export default function PortfolioTypeSelector({ value, onChange }: PortfolioType
         </label>
         <label
           onClick={() => onChange('long_short')}
-          className={`flex items-center p-3 border rounded-md cursor-pointer transition-colors ${
+          className={`flex items-center p-3 border rounded-md cursor-pointer transition-smooth hover-lift ${
             value === 'long_short'
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-              : 'border-gray-300 hover:border-gray-400 dark:border-gray-600'
+              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
+              : 'border-gray-300 hover:border-gray-400 dark:border-gray-600 hover:shadow-sm'
           }`}
         >
           <input

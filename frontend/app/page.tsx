@@ -62,7 +62,7 @@ export default function Home() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 space-y-6 animate-fade-in hover-lift">
           <TickerList tickers={tickers} onChange={setTickers} />
           
           <BacktestPeriodSelector value={backtestPeriod} onChange={setBacktestPeriod} />
@@ -72,7 +72,7 @@ export default function Home() {
           <PortfolioTypeSelector value={portfolioType} onChange={setPortfolioType} />
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4 animate-slide-in">
               <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
             </div>
           )}
@@ -80,7 +80,7 @@ export default function Home() {
           <button
             type="submit"
             disabled={loading || tickers.length === 0}
-            className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 active:bg-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-smooth hover-lift shadow-md hover:shadow-lg disabled:hover:shadow-md disabled:hover:translate-y-0"
           >
             {loading ? 'Optimizing...' : 'Optimize Portfolio'}
           </button>

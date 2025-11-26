@@ -100,12 +100,14 @@ export default function RollingMetricsChart({ rollingMetrics }: RollingMetricsCh
                 label={{ value: 'Sharpe Ratio', angle: -90, position: 'insideLeft', offset: -10 }}
               />
               <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  padding: '8px'
-                }}
+              contentStyle={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.98)', 
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                padding: '12px',
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
+              }}
+              separator=": "
               formatter={(value: any) => parseFloat(value).toFixed(3)}
               labelFormatter={(label) => `Date: ${formatDate(label)}`}
               />
@@ -170,12 +172,14 @@ export default function RollingMetricsChart({ rollingMetrics }: RollingMetricsCh
                 label={{ value: 'Volatility (%)', angle: -90, position: 'insideLeft', offset: -10 }}
               />
               <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  padding: '8px'
-                }}
+              contentStyle={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.98)', 
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                padding: '12px',
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
+              }}
+              separator=": "
               formatter={(value: any) => `${parseFloat(value).toFixed(2)}%`}
               labelFormatter={(label) => `Date: ${formatDate(label)}`}
               />

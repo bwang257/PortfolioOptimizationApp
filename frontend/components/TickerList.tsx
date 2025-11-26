@@ -121,7 +121,7 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
               }
             }}
             placeholder="Type ticker symbol (e.g., AAPL) and click Add or press Enter"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-smooth"
             disabled={tickers.length >= maxTickers}
           />
           {showSuggestions && suggestions.length > 0 && (
@@ -153,7 +153,7 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
         <button
           onClick={() => handleAdd()}
           disabled={!inputValue.trim() || tickers.length >= maxTickers}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-smooth hover-lift shadow-md hover:shadow-lg disabled:hover:shadow-md disabled:hover:translate-y-0"
         >
           Add
         </button>
@@ -163,12 +163,13 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
           {tickers.map((ticker) => (
             <span
               key={ticker}
-              className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+              className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 transition-smooth hover:bg-blue-200 dark:hover:bg-blue-800 animate-scale-in"
             >
               {ticker}
               <button
                 onClick={() => handleRemove(ticker)}
-                className="ml-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+                className="ml-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-fast rounded-full hover:bg-blue-300 dark:hover:bg-blue-700 px-1"
+                aria-label={`Remove ${ticker}`}
               >
                 ×
               </button>

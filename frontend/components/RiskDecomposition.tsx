@@ -40,14 +40,17 @@ export default function RiskDecomposition({ riskDecomposition }: RiskDecompositi
               label={{ value: 'Risk Contribution (%)', angle: -90, position: 'insideLeft', offset: -10 }}
             />
             <Tooltip 
+              cursor={false}
               contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                backgroundColor: 'rgba(255, 255, 255, 0.98)', 
                 border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                padding: '8px'
+                borderRadius: '8px',
+                padding: '12px',
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
               }}
               formatter={(value: any) => [`${parseFloat(value).toFixed(2)}%`, 'Risk Contribution']}
               labelFormatter={(label) => `Ticker: ${label}`}
+              separator=": "
             />
             <Legend />
             <Bar 
@@ -55,8 +58,12 @@ export default function RiskDecomposition({ riskDecomposition }: RiskDecompositi
               fill="#3B82F6"
               name="Risk Contribution"
               radius={[4, 4, 0, 0]}
-              activeBar={{ fill: '#2563EB', stroke: '#1E40AF', strokeWidth: 2 }}
-              style={{ pointerEvents: "all" }} 
+              activeBar={{ 
+                fill: '#2563EB', 
+                stroke: '#1E40AF', 
+                strokeWidth: 2,
+                radius: [4, 4, 0, 0]
+              }}
             />
           </BarChart>
         </ResponsiveContainer>

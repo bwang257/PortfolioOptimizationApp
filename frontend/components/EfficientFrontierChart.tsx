@@ -94,13 +94,15 @@ export default function EfficientFrontierChart({
             <Tooltip 
               cursor={{ stroke: '#3B82F6', strokeWidth: 1, strokeDasharray: '3 3' }}
               contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                backgroundColor: 'rgba(255, 255, 255, 0.98)', 
                 border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                padding: '8px'
+                borderRadius: '8px',
+                padding: '12px',
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
               }}
-              formatter={(value: any) => [`${parseFloat(value).toFixed(2)}%`, 'Return']}
-              labelFormatter={(label) => `Risk: ${parseFloat(label).toFixed(2)}%`}
+              formatter={(value: any) => [`${parseFloat(value).toFixed(2)}%`, 'Expected Return']}
+              labelFormatter={(label) => `Risk (Volatility): ${Math.round(parseFloat(label))}%`}
+              separator=": "
             />
             <Area
               type="monotone"
