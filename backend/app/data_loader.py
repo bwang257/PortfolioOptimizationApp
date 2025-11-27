@@ -1,8 +1,11 @@
 import yfinance as yf
 import pandas as pd
 import numpy as np
-from typing import List
+from typing import List, Dict
 from datetime import datetime, timedelta
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DataLoader:
     """Fetches and cleans historical price data for portfolio optimization."""
@@ -95,3 +98,53 @@ class DataLoader:
         """Compute daily returns from prices"""
         returns = prices.pct_change().dropna()
         return returns
+    
+    @staticmethod
+    def fetch_esg_scores(tickers: List[str]) -> Dict[str, float]:
+        """
+        Fetch ESG scores for given tickers using yfinance.
+        
+        Args:
+            tickers: List of stock ticker symbols
+            
+        Returns:
+            Dictionary mapping ticker to ESG score (lower is better)
+            Missing or unavailable data gets a neutral score (50.0)
+        """
+        esg_scores: Dict[str, float] = {}
+        available_scores = []
+        
+        for ticker in tickers:
+            try:
+                stock = yf.Ticker(ticker)
+                sustainability = stock.sustainability
+                
+                if sustainability is not None and not sustainability.empty:
+                    # Extract totalEsg score
+                    if 'totalEsg' in sustainability.index:
+                        total_esg = sustainability.loc['totalEsg', 0] if len(sustainability.columns) > 0 else None
+                        if total_esg is not None and not pd.isna(total_esg):
+                            esg_scores[ticker] = float(total_esg)
+                            available_scores.append(float(total_esg))
+                            logger.info(f"Fetched ESG score for {ticker}: {total_esg}")
+                            continue
+                
+                # If we get here, ESG data is not available
+                logger.warning(f"ESG data not available for {ticker}, will use neutral score")
+                
+            except Exception as e:
+                logger.warning(f"Error fetching ESG data for {ticker}: {str(e)}")
+        
+        # Calculate neutral score (average of available scores, or 50.0 if none available)
+        if available_scores:
+            neutral_score = float(np.mean(available_scores))
+        else:
+            neutral_score = 50.0  # Default neutral score
+        
+        # Assign neutral score to tickers without ESG data
+        for ticker in tickers:
+            if ticker not in esg_scores:
+                esg_scores[ticker] = neutral_score
+                logger.info(f"Assigned neutral ESG score {neutral_score} to {ticker}")
+        
+        return esg_scores

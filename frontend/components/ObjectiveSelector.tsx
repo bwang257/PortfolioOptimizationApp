@@ -1,8 +1,8 @@
 'use client';
 
 interface ObjectiveSelectorProps {
-  value: 'sharpe' | 'sortino' | 'calmar';
-  onChange: (value: 'sharpe' | 'sortino' | 'calmar') => void;
+  value: 'sharpe' | 'sortino' | 'calmar' | 'min_variance';
+  onChange: (value: 'sharpe' | 'sortino' | 'calmar' | 'min_variance') => void;
 }
 
 export default function ObjectiveSelector({ value, onChange }: ObjectiveSelectorProps) {
@@ -10,6 +10,7 @@ export default function ObjectiveSelector({ value, onChange }: ObjectiveSelector
     { value: 'sharpe' as const, label: 'Sharpe Ratio', description: 'Return per unit of total risk' },
     { value: 'sortino' as const, label: 'Sortino Ratio', description: 'Return per unit of downside risk' },
     { value: 'calmar' as const, label: 'Calmar Ratio', description: 'Return per unit of max drawdown' },
+    { value: 'min_variance' as const, label: 'Minimum Variance (Lowest Risk)', description: 'Minimize portfolio volatility' },
   ];
 
   return (

@@ -1,26 +1,75 @@
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 from .metrics import RiskMetrics
 
 
 class PortfolioOptimizer:
     """Optimize portfolio weights using scipy.optimize."""
     
-    def __init__(self, returns: pd.DataFrame, objective: str = "sharpe", portfolio_type: str = "long_only"):
+    def __init__(self, returns: pd.DataFrame, objective: str = "sharpe", portfolio_type: str = "long_only", 
+                 esg_scores: Optional[Dict[str, float]] = None, esg_weight: float = 0.0):
         """
         Initialize optimizer.
         
         Args:
             returns: DataFrame of asset returns
-            objective: Optimization objective ("sharpe", "sortino", "calmar")
+            objective: Optimization objective ("sharpe", "sortino", "calmar", "min_variance")
             portfolio_type: "long_only" or "long_short"
+            esg_scores: Dictionary mapping ticker to ESG score (lower is better)
+            esg_weight: Weight for ESG in blended objective (0.0 to 1.0)
         """
         self.returns = returns
         self.objective = objective
         self.portfolio_type = portfolio_type
         self.n_assets = len(returns.columns)
+        self.esg_scores = esg_scores or {}
+        self.esg_weight = esg_weight
+    
+    def _normalize_esg_score(self, weights: np.ndarray) -> float:
+        """
+        Calculate normalized ESG score for portfolio.
+        Lower ESG score is better, so we invert it for maximization.
+        
+        Args:
+            weights: Portfolio weights
+            
+        Returns:
+            Normalized ESG score (0-1, where 1 is best ESG)
+        """
+        if not self.esg_scores or self.esg_weight == 0.0:
+            return 0.0
+        
+        # Calculate weighted average ESG score
+        portfolio_esg = 0.0
+        total_weight = 0.0
+        
+        for i, ticker in enumerate(self.returns.columns):
+            if ticker in self.esg_scores:
+                portfolio_esg += weights[i] * self.esg_scores[ticker]
+                total_weight += weights[i]
+        
+        if total_weight == 0:
+            return 0.0
+        
+        portfolio_esg = portfolio_esg / total_weight
+        
+        # Normalize ESG score: lower is better, so invert
+        # Find min and max ESG scores for normalization
+        if self.esg_scores:
+            min_esg = min(self.esg_scores.values())
+            max_esg = max(self.esg_scores.values())
+            
+            if max_esg > min_esg:
+                # Invert: lower ESG score becomes higher normalized score
+                normalized_esg = 1.0 - ((portfolio_esg - min_esg) / (max_esg - min_esg))
+            else:
+                normalized_esg = 1.0
+        else:
+            normalized_esg = 0.5  # Neutral score if no ESG data
+        
+        return normalized_esg
     
     def _objective_function(self, weights: np.ndarray) -> float:
         """
@@ -35,8 +84,9 @@ class PortfolioOptimizer:
         portfolio_returns = (self.returns.values * weights).sum(axis=1)
         portfolio_returns = pd.Series(portfolio_returns)
         
+        # Calculate base metric for all objectives
         if self.objective == "sharpe":
-            metric = -RiskMetrics.calculate_sharpe_ratio(portfolio_returns)
+            base_metric = -RiskMetrics.calculate_sharpe_ratio(portfolio_returns)
         elif self.objective == "sortino":
             # Calculate Sortino ratio
             downside_returns = portfolio_returns[portfolio_returns < 0]
@@ -44,21 +94,54 @@ class PortfolioOptimizer:
                 downside_std = downside_returns.std() * (252 ** 0.5)
                 if downside_std > 0:
                     expected_return = portfolio_returns.mean() * 252
-                    metric = -((expected_return - 0.02) / downside_std)
+                    base_metric = -((expected_return - 0.02) / downside_std)
                 else:
-                    metric = 0
+                    base_metric = 0
             else:
-                metric = 0
+                base_metric = 0
         elif self.objective == "calmar":
             # Calculate Calmar ratio
             max_dd = RiskMetrics.calculate_max_drawdown(portfolio_returns)
             expected_return = portfolio_returns.mean() * 252
             if max_dd < 0:
-                metric = -(expected_return / abs(max_dd))
+                base_metric = -(expected_return / abs(max_dd))
             else:
-                metric = 0
+                base_metric = 0
+        elif self.objective == "min_variance":
+            # Minimize portfolio variance (volatility)
+            # Calculate portfolio variance directly
+            cov_matrix = self.returns.cov() * 252
+            portfolio_variance = np.dot(weights.T, np.dot(cov_matrix, weights))
+            base_metric = portfolio_variance  # Minimize variance directly
         else:
             raise ValueError(f"Unknown objective: {self.objective}")
+        
+        # Apply ESG blending if ESG weight > 0
+        if self.esg_weight > 0 and self.esg_scores:
+            normalized_esg = self._normalize_esg_score(weights)
+            
+            if self.objective == "min_variance":
+                # For min_variance, we minimize variance
+                # Blend: minimize (1-esg_weight)*variance - esg_weight*normalized_esg
+                # Scale ESG to match variance scale
+                cov_matrix = self.returns.cov() * 252
+                max_var = np.max(np.diag(cov_matrix)) if len(cov_matrix) > 0 else 1.0
+                # Scale normalized_esg (0-1) to variance scale
+                esg_component = normalized_esg * max_var * 0.1  # Scale ESG contribution
+                metric = (1 - self.esg_weight) * base_metric - self.esg_weight * esg_component
+            else:
+                # For maximization objectives (sharpe, sortino, calmar)
+                # base_metric is negative (we minimize negative of metric to maximize metric)
+                # We want to maximize: (1-esg_weight)*metric + esg_weight*normalized_esg
+                # So we minimize: -(1-esg_weight)*metric - esg_weight*normalized_esg
+                # = (1-esg_weight)*(-metric) - esg_weight*normalized_esg
+                # = (1-esg_weight)*base_metric - esg_weight*normalized_esg
+                # Scale ESG to match metric scale (typical sharpe/sortino/calmar are 0-3)
+                esg_scale = 2.0  # Scale factor to match typical metric range
+                esg_component = normalized_esg * esg_scale
+                metric = (1 - self.esg_weight) * base_metric - self.esg_weight * esg_component
+        else:
+            metric = base_metric
         
         return metric
     

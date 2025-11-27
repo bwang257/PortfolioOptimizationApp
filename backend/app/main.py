@@ -22,6 +22,15 @@ if TICKER_DB_PATH.exists():
 else:
     logger.warning(f"Ticker database not found at {TICKER_DB_PATH}")
 
+# Load portfolio presets
+PORTFOLIO_PRESETS_PATH = Path(__file__).parent.parent / "data" / "portfolio_presets.json"
+PORTFOLIO_PRESETS = []
+if PORTFOLIO_PRESETS_PATH.exists():
+    with open(PORTFOLIO_PRESETS_PATH, 'r') as f:
+        PORTFOLIO_PRESETS = json.load(f)
+else:
+    logger.warning(f"Portfolio presets not found at {PORTFOLIO_PRESETS_PATH}")
+
 # Create FastAPI app
 app = FastAPI(
     title="Portfolio Optimization API",
@@ -70,6 +79,19 @@ async def optimize_portfolio(request: PortfolioRequest):
         
         logger.info(f"Loaded {len(prices)} days of data for {len(request.tickers)} tickers")
         
+        # Fetch ESG scores if ESG weight > 0
+        esg_scores = None
+        esg_weight = request.esg_weight or 0.0
+        if esg_weight > 0:
+            logger.info(f"Fetching ESG scores for {len(request.tickers)} tickers (ESG weight: {esg_weight})")
+            try:
+                esg_scores = DataLoader.fetch_esg_scores(request.tickers)
+                logger.info(f"Successfully fetched ESG scores for {len(esg_scores)} tickers")
+            except Exception as e:
+                logger.warning(f"Failed to fetch ESG scores: {str(e)}. Continuing without ESG optimization.")
+                esg_scores = None
+                esg_weight = 0.0
+        
         # Use only the requested lookback period for optimization
         # But keep all data for rolling metrics and price history
         returns_for_optimization = returns.tail(request.lookback_days)
@@ -78,7 +100,9 @@ async def optimize_portfolio(request: PortfolioRequest):
         optimizer = PortfolioOptimizer(
             returns=returns_for_optimization,
             objective=request.objective,
-            portfolio_type=request.portfolio_type
+            portfolio_type=request.portfolio_type,
+            esg_scores=esg_scores,
+            esg_weight=esg_weight
         )
         optimal_weights, metrics = optimizer.optimize()
         
@@ -175,6 +199,25 @@ async def optimize_portfolio(request: PortfolioRequest):
             ],
         }
         
+        # Calculate portfolio ESG score (weighted average)
+        portfolio_esg_score = None
+        ticker_esg_scores_dict = None
+        if esg_scores:
+            # Calculate weighted average ESG score
+            portfolio_esg = 0.0
+            total_weight = 0.0
+            ticker_esg_scores_dict = {}
+            
+            for ticker in request.tickers:
+                if ticker in esg_scores:
+                    ticker_esg_scores_dict[ticker] = float(esg_scores[ticker])
+                    weight = weights_dict.get(ticker, 0.0)
+                    portfolio_esg += abs(weight) * esg_scores[ticker]  # Use absolute weight
+                    total_weight += abs(weight)
+            
+            if total_weight > 0:
+                portfolio_esg_score = float(portfolio_esg / total_weight)
+        
         response = PortfolioResponse(
             weights=weights_dict,
             expected_return=expected_return,
@@ -189,7 +232,10 @@ async def optimize_portfolio(request: PortfolioRequest):
             correlation_matrix=correlation_matrix,
             efficient_frontier=efficient_frontier,
             rolling_metrics=rolling_metrics_data,
-            risk_decomposition=risk_decomposition
+            risk_decomposition=risk_decomposition,
+            esg_weight=float(esg_weight) if esg_weight > 0 else None,
+            portfolio_esg_score=portfolio_esg_score,
+            ticker_esg_scores=ticker_esg_scores_dict
         )
         
         logger.info(f"Optimization successful. Sharpe ratio: {sharpe_ratio:.2f}")
@@ -252,6 +298,27 @@ async def search_tickers(q: str = Query(..., min_length=1, description="Search q
     return TickerSearchResponse(results=ticker_results)
 
 
+@app.get("/portfolio-presets")
+async def get_portfolio_presets(category: str = Query(None, description="Filter presets by category")):
+    """
+    Get available portfolio presets.
+    
+    Args:
+        category: Optional category filter (Tech, Finance, Healthcare, Energy, Consumer, ETFs, Diversified, ESG-focused)
+        
+    Returns:
+        List of portfolio presets
+    """
+    if not PORTFOLIO_PRESETS:
+        return {"presets": []}
+    
+    presets = PORTFOLIO_PRESETS
+    if category:
+        presets = [p for p in presets if p.get("category", "").lower() == category.lower()]
+    
+    return {"presets": presets}
+
+
 @app.get("/health")
 async def health_check():
     """Detailed health check"""
@@ -262,6 +329,7 @@ async def health_check():
             "/",
             "/optimize",
             "/search/tickers",
+            "/portfolio-presets",
             "/health",
             "/docs"
         ]

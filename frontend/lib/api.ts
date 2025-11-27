@@ -3,6 +3,7 @@ export interface PortfolioRequest {
   objective: string;
   portfolio_type: string;
   lookback_days: number;
+  esg_weight?: number;
 }
 
 export interface PortfolioResponse {
@@ -27,6 +28,9 @@ export interface PortfolioResponse {
   };
   correlation_matrix?: Record<string, Record<string, number>>;
   risk_decomposition?: Record<string, number>;
+  esg_weight?: number | null;
+  portfolio_esg_score?: number | null;
+  ticker_esg_scores?: Record<string, number>;
 }
 
 export interface TickerInfo {

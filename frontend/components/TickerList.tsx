@@ -120,27 +120,37 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
                 setShowSuggestions(true);
               }
             }}
-            placeholder="Type ticker symbol (e.g., AAPL) and click Add or press Enter"
+            placeholder="Search by ticker symbol (e.g., AAPL) or company name (e.g., Apple)"
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-smooth"
             disabled={tickers.length >= maxTickers}
+            aria-label="Search for stock ticker or company name"
+            aria-autocomplete="list"
+            aria-expanded={showSuggestions}
+            aria-controls="ticker-suggestions"
           />
           {showSuggestions && suggestions.length > 0 && (
             <div
               ref={suggestionsRef}
+              id="ticker-suggestions"
+              role="listbox"
               className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-auto"
             >
               {suggestions.map((ticker, index) => (
                 <div
                   key={ticker.symbol}
+                  role="option"
+                  aria-selected={index === selectedIndex}
                   onClick={() => handleSuggestionClick(ticker)}
                   className={`px-4 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 ${
                     index === selectedIndex ? 'bg-blue-100 dark:bg-gray-700' : ''
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-gray-900 dark:text-white">
-                      {ticker.symbol}
-                    </span>
+                  <div className="flex flex-col">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {ticker.symbol}
+                      </span>
+                    </div>
                     <span className="text-sm text-gray-600 dark:text-gray-400">
                       {ticker.name}
                     </span>
@@ -153,7 +163,8 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
         <button
           onClick={() => handleAdd()}
           disabled={!inputValue.trim() || tickers.length >= maxTickers}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-smooth hover-lift shadow-md hover:shadow-lg disabled:hover:shadow-md disabled:hover:translate-y-0"
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-smooth hover-lift shadow-md hover:shadow-lg disabled:hover:shadow-md disabled:hover:translate-y-0 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          aria-label="Add ticker to portfolio"
         >
           Add
         </button>
@@ -178,9 +189,14 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
         </div>
       )}
       {tickers.length === 0 && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          No tickers added yet. Type a ticker symbol above and click "Add" or press Enter to add it.
-        </p>
+        <div className="space-y-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            No tickers added yet. Search by ticker symbol (e.g., AAPL) or company name (e.g., Apple) above.
+          </p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            Tip: You can search by either the stock ticker symbol or the company name. Click "Add" or press Enter to add a ticker.
+          </p>
+        </div>
       )}
     </div>
   );

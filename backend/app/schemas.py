@@ -4,9 +4,10 @@ from typing import List, Dict, Literal, Optional, Any
 
 class PortfolioRequest(BaseModel):
     tickers: List[str] = Field(..., min_items=1, max_items=30, description="List of stock tickers")
-    objective: Literal["sharpe", "sortino", "calmar"] = Field(..., description="Optimization objective")
+    objective: Literal["sharpe", "sortino", "calmar", "min_variance"] = Field(..., description="Optimization objective")
     portfolio_type: Literal["long_only", "long_short"] = Field(..., description="Portfolio constraint type")
     lookback_days: Optional[int] = Field(252, ge=30, le=2520, description="Number of trading days for historical data")
+    esg_weight: Optional[float] = Field(0.0, ge=0.0, le=1.0, description="ESG importance weight (0.0 to 1.0)")
 
 
 class PortfolioResponse(BaseModel):
@@ -24,6 +25,9 @@ class PortfolioResponse(BaseModel):
     efficient_frontier: Optional[List[Dict[str, float]]] = Field(None, description="Efficient frontier points (risk-return pairs)")
     rolling_metrics: Optional[Dict[str, List[Dict[str, Any]]]] = Field(None, description="Rolling Sharpe ratio and volatility over time")
     risk_decomposition: Optional[Dict[str, float]] = Field(None, description="Risk contribution percentage by asset")
+    esg_weight: Optional[float] = Field(None, description="ESG importance weight used in optimization (0.0 to 1.0)")
+    portfolio_esg_score: Optional[float] = Field(None, description="Weighted average ESG score of the portfolio (lower is better)")
+    ticker_esg_scores: Optional[Dict[str, float]] = Field(None, description="Individual ESG scores for each ticker (lower is better)")
 
 
 class TickerInfo(BaseModel):
