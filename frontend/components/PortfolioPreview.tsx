@@ -78,18 +78,22 @@ export default function PortfolioPreview({ tickers, preset, onTickersChange, onC
 
       {preset && !isEditing && (
         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            <p className="mb-1">
-              <span className="font-medium">Suggested Objective:</span>{' '}
-              {preset.suggested_objective.replace('_', ' ')}
-            </p>
-            {preset.suggested_esg_weight && preset.suggested_esg_weight > 0 && (
-              <p>
-                <span className="font-medium">Suggested ESG Weight:</span>{' '}
-                {Math.round(preset.suggested_esg_weight * 100)}%
-              </p>
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">
+            Preset Suggestions (Informational)
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs">
+              💡 Objective: {preset.suggested_objective.replace('_', ' ')}
+            </span>
+            {preset.suggested_esg_weight !== undefined && preset.suggested_esg_weight > 0 && (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs">
+                💡 ESG Weight: {Math.round(preset.suggested_esg_weight * 100)}%
+              </span>
             )}
           </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">
+            These are suggestions only. You can adjust them in the optimization form.
+          </p>
         </div>
       )}
     </div>

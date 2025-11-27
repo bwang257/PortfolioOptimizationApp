@@ -89,7 +89,15 @@ export default function ResultsPage() {
             </p>
           </div>
           <button
-            onClick={() => router.push('/')}
+            onClick={() => {
+              // Clear sessionStorage when navigating to start page
+              sessionStorage.removeItem('portfolioResults');
+              sessionStorage.removeItem('backtestPeriod');
+              sessionStorage.removeItem('optimizationObjective');
+              sessionStorage.removeItem('portfolioType');
+              sessionStorage.removeItem('esgWeight');
+              router.push('/start');
+            }}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 transition-smooth hover-lift shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             aria-label="Start a new portfolio optimization"
           >

@@ -32,10 +32,10 @@ export default function EfficientFrontierChart({
     return: point.return * 100,
   }));
   
-  // Current portfolio point
+  // Current portfolio point - validate and convert to percentage
   const currentPoint = {
-    risk: currentRisk * 100,
-    return: currentReturn * 100,
+    risk: isFinite(currentRisk) && !isNaN(currentRisk) ? currentRisk * 100 : 0,
+    return: isFinite(currentReturn) && !isNaN(currentReturn) ? currentReturn * 100 : 0,
   };
   
   if (frontierData.length === 0) {
@@ -52,6 +52,22 @@ export default function EfficientFrontierChart({
       </div>
     );
   }
+  
+  // Calculate domain to include both frontier and current portfolio point
+  const riskValues = [...frontierData.map(p => p.risk), currentPoint.risk];
+  const returnValues = [...frontierData.map(p => p.return), currentPoint.return];
+  
+  const riskMin = Math.min(...riskValues);
+  const riskMax = Math.max(...riskValues);
+  const returnMin = Math.min(...returnValues);
+  const returnMax = Math.max(...returnValues);
+  
+  // Add padding to ensure visibility (5% padding on each side)
+  const riskPadding = (riskMax - riskMin) * 0.05 || 1;
+  const returnPadding = (returnMax - returnMin) * 0.05 || 1;
+  
+  const riskDomain = [Math.max(0, riskMin - riskPadding), riskMax + riskPadding];
+  const returnDomain = [returnMin - returnPadding, returnMax + returnPadding];
   
   return (
     <div className="w-full overflow-hidden">
@@ -78,7 +94,7 @@ export default function EfficientFrontierChart({
               unit="%"
               label={{ value: 'Risk (Volatility %)', position: 'insideBottom', offset: -10 }}
               tick={{ fontSize: 11, fill: '#6b7280' }}
-              domain={['dataMin', 'dataMax']}
+              domain={riskDomain}
               tickFormatter={(value) => Math.round(value).toString()}
             />
             <YAxis 
@@ -88,7 +104,7 @@ export default function EfficientFrontierChart({
               unit="%"
               label={{ value: 'Expected Return (%)', angle: -90, position: 'insideLeft', offset: -10 }}
               tick={{ fontSize: 11, fill: '#6b7280' }}
-              domain={['dataMin', 'dataMax']}
+              domain={returnDomain}
               tickFormatter={(value) => Math.round(value).toString()}
             />
             <Tooltip 

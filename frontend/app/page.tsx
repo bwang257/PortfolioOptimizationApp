@@ -19,6 +19,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [presetName, setPresetName] = useState<string | null>(null);
+  const [presetSuggestions, setPresetSuggestions] = useState<{objective?: string; esgWeight?: number} | null>(null);
   const router = useRouter();
 
   // Load pre-filled data from start page
@@ -31,12 +32,12 @@ export default function Home() {
           setTickers(data.tickers);
           if (data.preset) {
             setPresetName(data.preset.name);
-            if (data.preset.suggested_objective) {
-              setObjective(data.preset.suggested_objective);
-            }
-            if (data.preset.suggested_esg_weight !== undefined) {
-              setEsgWeight(data.preset.suggested_esg_weight);
-            }
+            // Store preset suggestions but don't auto-apply them
+            // They will be shown as informational hints
+            setPresetSuggestions({
+              objective: data.preset.suggested_objective,
+              esgWeight: data.preset.suggested_esg_weight
+            });
           }
         }
         // Clear the sessionStorage after loading
@@ -103,9 +104,25 @@ export default function Home() {
             Optimize your stock portfolio using advanced risk-adjusted metrics
           </p>
           {presetName && (
-            <p className="text-sm text-blue-600 dark:text-blue-400 mt-2">
-              Based on preset: <span className="font-medium">{presetName}</span>
-            </p>
+            <div className="text-sm text-blue-600 dark:text-blue-400 mt-2">
+              <p>
+                Based on preset: <span className="font-medium">{presetName}</span>
+              </p>
+              {presetSuggestions && (
+                <div className="mt-2 flex flex-wrap gap-3 text-xs">
+                  {presetSuggestions.objective && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
+                      💡 Suggested: {presetSuggestions.objective.replace('_', ' ')} objective
+                    </span>
+                  )}
+                  {presetSuggestions.esgWeight !== undefined && presetSuggestions.esgWeight > 0 && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-md bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300">
+                      💡 Suggested: {Math.round(presetSuggestions.esgWeight * 100)}% ESG weight
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           )}
         </div>
 

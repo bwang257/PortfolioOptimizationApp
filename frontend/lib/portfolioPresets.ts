@@ -86,7 +86,7 @@ export const portfolioPresets: PortfolioPreset[] = [
   {
     id: "renewable-energy",
     name: "Renewable Energy",
-    description: "Clean energy and renewable power companies",
+    description: "Clean energy and renewable power companies. Suggested: Sharpe ratio objective with 30% ESG weight.",
     category: "Energy",
     tickers: ["NEE", "ENPH", "FSLR", "SEDG", "RUN"],
     suggested_objective: "sharpe",
@@ -149,7 +149,7 @@ export const portfolioPresets: PortfolioPreset[] = [
   {
     id: "esg-leaders",
     name: "ESG Leaders",
-    description: "Companies with strong ESG ratings",
+    description: "Companies with strong ESG ratings. Suggested: Sharpe ratio objective with 50% ESG weight.",
     category: "ESG-focused",
     tickers: ["MSFT", "NVDA", "AAPL", "GOOGL", "NEE"],
     suggested_objective: "sharpe",
@@ -158,7 +158,7 @@ export const portfolioPresets: PortfolioPreset[] = [
   {
     id: "sustainable-tech",
     name: "Sustainable Tech",
-    description: "Technology companies with strong sustainability practices",
+    description: "Technology companies with strong sustainability practices. Suggested: Sharpe ratio objective with 40% ESG weight.",
     category: "ESG-focused",
     tickers: ["MSFT", "GOOGL", "AAPL", "NVDA", "ADBE"],
     suggested_objective: "sharpe",
