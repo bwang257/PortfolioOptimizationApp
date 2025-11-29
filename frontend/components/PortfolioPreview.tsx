@@ -34,9 +34,9 @@ export default function PortfolioPreview({ tickers, preset, onTickersChange, onC
         <div className="flex gap-2">
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-smooth"
+            className="px-3 py-1.5 text-sm bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-md hover:bg-blue-200 dark:hover:bg-blue-900/30 transition-smooth font-medium"
           >
-            {isEditing ? 'Done Editing' : 'Edit'}
+            {isEditing ? 'Done Editing' : '✏️ Add/Edit Stocks'}
           </button>
           <button
             onClick={onClear}
@@ -49,6 +49,9 @@ export default function PortfolioPreview({ tickers, preset, onTickersChange, onC
 
       {isEditing ? (
         <div className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            Add or remove stocks from your portfolio. You can add up to 30 stocks.
+          </p>
           <TickerList tickers={tickers} onChange={onTickersChange} maxTickers={30} />
         </div>
       ) : (

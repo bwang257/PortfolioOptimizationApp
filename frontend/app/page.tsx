@@ -104,25 +104,9 @@ export default function Home() {
             Optimize your stock portfolio using advanced risk-adjusted metrics
           </p>
           {presetName && (
-            <div className="text-sm text-blue-600 dark:text-blue-400 mt-2">
-              <p>
-                Based on preset: <span className="font-medium">{presetName}</span>
-              </p>
-              {presetSuggestions && (
-                <div className="mt-2 flex flex-wrap gap-3 text-xs">
-                  {presetSuggestions.objective && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
-                      💡 Suggested: {presetSuggestions.objective.replace('_', ' ')} objective
-                    </span>
-                  )}
-                  {presetSuggestions.esgWeight !== undefined && presetSuggestions.esgWeight > 0 && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-md bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300">
-                      💡 Suggested: {Math.round(presetSuggestions.esgWeight * 100)}% ESG weight
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
+            <p className="text-sm text-blue-600 dark:text-blue-400 mt-2">
+              Based on preset: <span className="font-medium">{presetName}</span>
+            </p>
           )}
         </div>
 
@@ -161,7 +145,16 @@ export default function Home() {
           
           <BacktestPeriodSelector value={backtestPeriod} onChange={setBacktestPeriod} />
           
-          <ObjectiveSelector value={objective} onChange={setObjective} />
+          <div className="space-y-2">
+            <ObjectiveSelector value={objective} onChange={setObjective} />
+            {presetSuggestions?.objective && (
+              <div className="ml-1 -mt-1">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs">
+                  💡 Preset suggests: {presetSuggestions.objective.replace('_', ' ')} objective
+                </span>
+              </div>
+            )}
+          </div>
           
           <PortfolioTypeSelector value={portfolioType} onChange={setPortfolioType} />
 
@@ -171,6 +164,11 @@ export default function Home() {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 ESG Importance (Sustainability Weight)
               </label>
+              {presetSuggestions?.esgWeight !== undefined && presetSuggestions.esgWeight > 0 && (
+                <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs">
+                  💡 Preset suggests: {Math.round(presetSuggestions.esgWeight * 100)}%
+                </span>
+              )}
               <div className="group relative">
                 <svg className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />

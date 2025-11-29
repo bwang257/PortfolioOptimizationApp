@@ -102,8 +102,8 @@ class DataLoader:
     @staticmethod
     def fetch_esg_scores(tickers: List[str]) -> Dict[str, float]:
         """
-        Fetch ESG scores for given tickers using yfinance.
-        Tries multiple methods to retrieve ESG data.
+        Fetch ESG scores for given tickers using Financial Modeling Prep API.
+        Falls back to yfinance if API key is not available.
         
         Args:
             tickers: List of stock ticker symbols
@@ -113,76 +113,101 @@ class DataLoader:
             Missing or unavailable data gets a neutral score based on available scores
         """
         import time
+        import os
+        import httpx
+        
         esg_scores: Dict[str, float] = {}
         available_scores = []
         
-        for i, ticker in enumerate(tickers):
-            # Add small delay to avoid rate limiting
-            if i > 0:
-                time.sleep(0.1)
-            
+        # Try Financial Modeling Prep API first (if API key is available)
+        fmp_api_key = os.getenv('FMP_API_KEY')
+        if fmp_api_key:
+            logger.info("Using Financial Modeling Prep API for ESG data")
             try:
-                stock = yf.Ticker(ticker)
-                total_esg = None
-                
-                # Method 1: Try accessing from info dict (most reliable)
-                try:
-                    info = stock.info
-                    if info and isinstance(info, dict):
-                        total_esg = info.get('totalEsg')
-                        if total_esg is not None:
-                            try:
-                                total_esg = float(total_esg)
-                                if not pd.isna(total_esg) and total_esg > 0:
-                                    esg_scores[ticker] = total_esg
-                                    available_scores.append(total_esg)
-                                    logger.info(f"Fetched ESG score for {ticker} from info: {total_esg}")
-                                    continue
-                            except (ValueError, TypeError):
-                                pass
-                except Exception as e:
-                    logger.debug(f"Method 1 (info) failed for {ticker}: {str(e)}")
-                
-                # Method 2: Try sustainability DataFrame
-                try:
-                    sustainability = stock.sustainability
-                    if sustainability is not None and not sustainability.empty:
-                        # Try different ways to access totalEsg
-                        if 'totalEsg' in sustainability.index:
-                            if len(sustainability.columns) > 0:
-                                total_esg = sustainability.loc['totalEsg', sustainability.columns[0]]
+                # FMP API allows batch requests, but we'll do individual requests to handle errors better
+                for i, ticker in enumerate(tickers):
+                    if i > 0:
+                        time.sleep(0.2)  # Rate limiting: 5 requests per second for free tier
+                    
+                    try:
+                        # Financial Modeling Prep ESG endpoint
+                        url = f"https://financialmodelingprep.com/api/v3/esg-score/{ticker}?apikey={fmp_api_key}"
+                        with httpx.Client(timeout=10.0) as client:
+                            response = client.get(url)
+                            
+                            if response.status_code == 200:
+                                data = response.json()
+                                if data and isinstance(data, list) and len(data) > 0:
+                                    esg_data = data[0]
+                                    # FMP returns ESG score (0-100, higher is better)
+                                    # We need to convert to our format (lower is better for optimization)
+                                    if 'esgScore' in esg_data:
+                                        esg_score = float(esg_data['esgScore'])
+                                        if not pd.isna(esg_score) and esg_score > 0:
+                                            # Convert to inverted scale (100 - score) so lower is better
+                                            # This way high ESG scores become low values (good for optimization)
+                                            inverted_score = 100.0 - esg_score
+                                            esg_scores[ticker] = inverted_score
+                                            available_scores.append(inverted_score)
+                                            logger.info(f"Fetched ESG score for {ticker} from FMP: {esg_score} (inverted: {inverted_score:.2f})")
+                                            continue
+                            elif response.status_code == 429:
+                                logger.warning(f"Rate limit reached for FMP API, falling back to yfinance")
+                                break
                             else:
-                                # Try accessing as a Series
-                                if hasattr(sustainability, 'loc'):
-                                    try:
-                                        total_esg = sustainability.loc['totalEsg']
-                                        if isinstance(total_esg, pd.Series):
-                                            total_esg = total_esg.iloc[0] if len(total_esg) > 0 else None
-                                    except:
-                                        pass
-                        
-                        if total_esg is not None:
-                            try:
-                                total_esg = float(total_esg)
-                                if not pd.isna(total_esg) and total_esg > 0:
-                                    esg_scores[ticker] = total_esg
-                                    available_scores.append(total_esg)
-                                    logger.info(f"Fetched ESG score for {ticker} from sustainability: {total_esg}")
-                                    continue
-                            except (ValueError, TypeError):
-                                pass
-                except Exception as e:
-                    logger.debug(f"Method 2 (sustainability) failed for {ticker}: {str(e)}")
+                                logger.debug(f"FMP API returned {response.status_code} for {ticker}")
+                    except Exception as e:
+                        logger.debug(f"FMP API request failed for {ticker}: {str(e)}")
+                        continue
+            except Exception as e:
+                logger.warning(f"Error using FMP API: {str(e)}, falling back to yfinance")
+        
+        # Fallback to yfinance for any tickers not yet processed
+        remaining_tickers = [t for t in tickers if t not in esg_scores]
+        if remaining_tickers:
+            logger.info(f"Fetching ESG data for {len(remaining_tickers)} tickers using yfinance fallback")
+            for i, ticker in enumerate(remaining_tickers):
+                # Add small delay to avoid rate limiting
+                if i > 0:
+                    time.sleep(0.1)
                 
-                # Method 3: Try get_sustainability if available
                 try:
-                    if hasattr(stock, 'get_sustainability'):
-                        sustainability_data = stock.get_sustainability()
-                        if sustainability_data is not None:
-                            if isinstance(sustainability_data, dict) and 'totalEsg' in sustainability_data:
-                                total_esg = sustainability_data['totalEsg']
-                            elif isinstance(sustainability_data, pd.DataFrame) and 'totalEsg' in sustainability_data.index:
-                                total_esg = sustainability_data.loc['totalEsg'].iloc[0] if len(sustainability_data) > 0 else None
+                    stock = yf.Ticker(ticker)
+                    total_esg = None
+                    
+                    # Method 1: Try accessing from info dict (most reliable)
+                    try:
+                        info = stock.info
+                        if info and isinstance(info, dict):
+                            total_esg = info.get('totalEsg')
+                            if total_esg is not None:
+                                try:
+                                    total_esg = float(total_esg)
+                                    if not pd.isna(total_esg) and total_esg > 0:
+                                        esg_scores[ticker] = total_esg
+                                        available_scores.append(total_esg)
+                                        logger.info(f"Fetched ESG score for {ticker} from yfinance info: {total_esg}")
+                                        continue
+                                except (ValueError, TypeError):
+                                    pass
+                    except Exception as e:
+                        logger.debug(f"yfinance info method failed for {ticker}: {str(e)}")
+                    
+                    # Method 2: Try sustainability DataFrame
+                    try:
+                        sustainability = stock.sustainability
+                        if sustainability is not None and not sustainability.empty:
+                            if 'totalEsg' in sustainability.index:
+                                if len(sustainability.columns) > 0:
+                                    total_esg = sustainability.loc['totalEsg', sustainability.columns[0]]
+                                else:
+                                    if hasattr(sustainability, 'loc'):
+                                        try:
+                                            total_esg = sustainability.loc['totalEsg']
+                                            if isinstance(total_esg, pd.Series):
+                                                total_esg = total_esg.iloc[0] if len(total_esg) > 0 else None
+                                        except:
+                                            pass
                             
                             if total_esg is not None:
                                 try:
@@ -190,18 +215,18 @@ class DataLoader:
                                     if not pd.isna(total_esg) and total_esg > 0:
                                         esg_scores[ticker] = total_esg
                                         available_scores.append(total_esg)
-                                        logger.info(f"Fetched ESG score for {ticker} from get_sustainability: {total_esg}")
+                                        logger.info(f"Fetched ESG score for {ticker} from yfinance sustainability: {total_esg}")
                                         continue
                                 except (ValueError, TypeError):
                                     pass
+                    except Exception as e:
+                        logger.debug(f"yfinance sustainability method failed for {ticker}: {str(e)}")
+                    
+                    # If all methods failed, log warning
+                    logger.warning(f"ESG data not available for {ticker} after trying all methods")
+                    
                 except Exception as e:
-                    logger.debug(f"Method 3 (get_sustainability) failed for {ticker}: {str(e)}")
-                
-                # If all methods failed, log warning
-                logger.warning(f"ESG data not available for {ticker} after trying all methods")
-                
-            except Exception as e:
-                logger.warning(f"Error fetching ESG data for {ticker}: {str(e)}")
+                    logger.warning(f"Error fetching ESG data for {ticker}: {str(e)}")
         
         # Calculate neutral score (average of available scores, or 30.0 if none available)
         # Use 30.0 as default since most ESG scores range from 0-50, with 30 being a reasonable neutral

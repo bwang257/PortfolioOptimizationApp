@@ -181,6 +181,33 @@ export const portfolioPresets: PortfolioPreset[] = [
     tickers: ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "NVDA"],
     suggested_objective: "sharpe",
     suggested_esg_weight: 0.0
+  },
+  {
+    id: "value-investing",
+    name: "Value Investing",
+    description: "Undervalued stocks with strong fundamentals",
+    category: "Diversified",
+    tickers: ["BRK.B", "JPM", "BAC", "WFC", "XOM", "CVX"],
+    suggested_objective: "sortino",
+    suggested_esg_weight: 0.0
+  },
+  {
+    id: "real-estate-reits",
+    name: "Real Estate REITs",
+    description: "Real estate investment trusts for income and diversification",
+    category: "Diversified",
+    tickers: ["VNQ", "AMT", "PLD", "EQIX", "PSA", "WELL"],
+    suggested_objective: "min_variance",
+    suggested_esg_weight: 0.0
+  },
+  {
+    id: "clean-energy",
+    name: "Clean Energy",
+    description: "Renewable energy and clean technology companies. Suggested: Sharpe ratio objective with 35% ESG weight.",
+    category: "ESG-focused",
+    tickers: ["NEE", "ENPH", "FSLR", "SEDG", "RUN", "PLUG"],
+    suggested_objective: "sharpe",
+    suggested_esg_weight: 0.35
   }
 ];
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PortfolioPresetGrid from '@/components/PortfolioPresetGrid';
 import PortfolioPreview from '@/components/PortfolioPreview';
@@ -23,11 +23,16 @@ export default function StartPage() {
   const [selectionMode, setSelectionMode] = useState<SelectionMode | null>(null);
   const [selectedPreset, setSelectedPreset] = useState<PortfolioPreset | null>(null);
   const [tickers, setTickers] = useState<string[]>([]);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const handlePresetSelect = (preset: PortfolioPreset) => {
     setSelectedPreset(preset);
     setTickers([...preset.tickers]);
     setSelectionMode('preset');
+    // Auto-scroll to preview after a short delay to allow DOM update
+    setTimeout(() => {
+      previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleQuickStart = (portfolio: { name: string; tickers: string[] }) => {
@@ -141,6 +146,27 @@ export default function StartPage() {
               selectedPresetId={selectedPreset?.id || null}
               onPresetSelect={handlePresetSelect}
             />
+            
+            {/* Portfolio Preview - Inline after preset grid */}
+            {tickers.length > 0 && selectedPreset && (
+              <div ref={previewRef} className="mt-6">
+                <PortfolioPreview
+                  tickers={tickers}
+                  preset={selectedPreset}
+                  onTickersChange={setTickers}
+                  onClear={handleClear}
+                />
+                <div className="mt-6 flex justify-center">
+                  <button
+                    onClick={handleContinue}
+                    className="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-smooth hover-lift shadow-md hover:shadow-lg text-lg"
+                    aria-label="Continue to optimization"
+                  >
+                    Continue to Optimization →
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -207,8 +233,8 @@ export default function StartPage() {
           </div>
         )}
 
-        {/* Portfolio Preview */}
-        {tickers.length > 0 && (
+        {/* Portfolio Preview - For manual and quick start modes */}
+        {tickers.length > 0 && selectionMode !== 'preset' && (
           <div className="mt-8">
             <PortfolioPreview
               tickers={tickers}

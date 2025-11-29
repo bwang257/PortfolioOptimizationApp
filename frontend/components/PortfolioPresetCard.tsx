@@ -69,17 +69,6 @@ export default function PortfolioPresetCard({ preset, isSelected, onClick }: Por
           {remainingCount > 0 && ` +${remainingCount} more`}
         </span>
       </div>
-
-      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-xs">
-        <span className="text-gray-500 dark:text-gray-400">
-          Suggested: {preset.suggested_objective.replace('_', ' ')}
-        </span>
-        {preset.suggested_esg_weight && preset.suggested_esg_weight > 0 && (
-          <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-            ESG: {Math.round(preset.suggested_esg_weight * 100)}%
-          </span>
-        )}
-      </div>
     </div>
   );
 }
