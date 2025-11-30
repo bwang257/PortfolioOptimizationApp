@@ -43,8 +43,11 @@ export interface TickerSearchResponse {
   results: TickerInfo[];
 }
 
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+
 export async function optimizePortfolio(params: PortfolioRequest): Promise<PortfolioResponse> {
-  const response = await fetch('http://127.0.0.1:8000/optimize', {
+  const response = await fetch(`${API_URL}/optimize`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params),
@@ -58,8 +61,9 @@ export async function optimizePortfolio(params: PortfolioRequest): Promise<Portf
   return response.json();
 }
 
+
 export async function searchTickers(query: string): Promise<TickerInfo[]> {
-  const response = await fetch(`http://127.0.0.1:8000/search/tickers?q=${encodeURIComponent(query)}`, {
+  const response = await fetch(`${API_URL}/search/tickers?q=${encodeURIComponent(query)}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
