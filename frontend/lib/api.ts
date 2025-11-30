@@ -26,7 +26,6 @@ export interface PortfolioResponse {
     volatility_60?: Array<{ date: string; value: number }>;
     volatility_90?: Array<{ date: string; value: number }>;
   };
-  correlation_matrix?: Record<string, Record<string, number>>;
   risk_decomposition?: Record<string, number>;
   esg_weight?: number | null;
   portfolio_esg_score?: number | null;

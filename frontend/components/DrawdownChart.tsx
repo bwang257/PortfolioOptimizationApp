@@ -60,7 +60,7 @@ export default function DrawdownChart({ portfolioReturns }: DrawdownChartProps) 
             />
             <YAxis 
               tick={{ fontSize: 11, fill: '#6b7280' }}
-              label={{ value: 'Drawdown (%)', angle: -90, position: 'insideLeft', offset: -10 }}
+              label={{ value: 'Drawdown (%)', angle: -90, position: 'insideLeft', offset: 5 , dy: 30}}
               domain={yAxisDomain}
               tickFormatter={(value) => parseFloat(value).toFixed(1)}
             />

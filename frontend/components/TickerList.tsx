@@ -14,6 +14,7 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
   const [suggestions, setSuggestions] = useState<TickerInfo[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -66,10 +67,45 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
 
   const handleAdd = (ticker?: string) => {
     const tickerToAdd = ticker || inputValue.trim().toUpperCase();
-    if (tickerToAdd && !tickers.includes(tickerToAdd) && tickers.length < maxTickers) {
+    
+    // Validate that the ticker is in the search results (searchable/valid)
+    if (ticker) {
+      // Ticker was selected from suggestions - always valid
+      if (tickerToAdd && !tickers.includes(tickerToAdd) && tickers.length < maxTickers) {
+        onChange([...tickers, tickerToAdd]);
+        setInputValue('');
+        setShowSuggestions(false);
+        setError(null);
+      }
+    } else {
+      // User typed and pressed Enter - must be in suggestions
+      const isValidTicker = suggestions.some(s => s.symbol.toUpperCase() === tickerToAdd);
+      
+      if (!tickerToAdd) {
+        setError('Please enter a ticker symbol');
+        return;
+      }
+      
+      if (!isValidTicker) {
+        setError(`"${tickerToAdd}" not found. Please select from search results.`);
+        return;
+      }
+      
+      if (tickers.includes(tickerToAdd)) {
+        setError(`"${tickerToAdd}" is already added`);
+        return;
+      }
+      
+      if (tickers.length >= maxTickers) {
+        setError(`Maximum ${maxTickers} tickers allowed`);
+        return;
+      }
+      
+      // Valid ticker from suggestions
       onChange([...tickers, tickerToAdd]);
       setInputValue('');
       setShowSuggestions(false);
+      setError(null);
     }
   };
 
@@ -113,14 +149,17 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
             ref={inputRef}
             type="text"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              setError(null); // Clear error when user types
+            }}
             onKeyDown={handleKeyPress}
             onFocus={() => {
               if (inputValue.trim().length >= 1 && suggestions.length > 0) {
                 setShowSuggestions(true);
               }
             }}
-            placeholder="Search by ticker symbol (e.g., AAPL) or company name (e.g., Apple)"
+            placeholder="Search for ticker symbol or company name"
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-smooth"
             disabled={tickers.length >= maxTickers}
             aria-label="Search for stock ticker or company name"
@@ -169,6 +208,11 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
           Add
         </button>
       </div>
+      {error && (
+        <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+        </div>
+      )}
       {tickers.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
           {tickers.map((ticker) => (
@@ -191,10 +235,7 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
       {tickers.length === 0 && (
         <div className="space-y-1">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            No tickers added yet. Search by ticker symbol (e.g., AAPL) or company name (e.g., Apple) above.
-          </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500">
-            Tip: You can search by either the stock ticker symbol or the company name. Click "Add" or press Enter to add a ticker.
+            No tickers added yet.
           </p>
         </div>
       )}

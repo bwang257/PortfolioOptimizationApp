@@ -86,11 +86,11 @@ export default function PortfolioPreview({ tickers, preset, onTickersChange, onC
           </p>
           <div className="flex flex-wrap gap-2">
             <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs">
-              💡 Objective: {preset.suggested_objective.replace('_', ' ')}
+              Objective: {preset.suggested_objective.replace('_', ' ')}
             </span>
             {preset.suggested_esg_weight !== undefined && preset.suggested_esg_weight > 0 && (
               <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs">
-                💡 ESG Weight: {Math.round(preset.suggested_esg_weight * 100)}%
+                ESG Weight: {Math.round(preset.suggested_esg_weight * 100)}%
               </span>
             )}
           </div>

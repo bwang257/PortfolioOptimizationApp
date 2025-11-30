@@ -39,7 +39,8 @@ class DataLoader:
         
         # Add buffer for rolling metrics (need at least 90 days extra for 90-day rolling windows)
         # Use max of 90 days or 1.5x lookback_days to ensure enough data
-        buffer_days = max(90, int(self.lookback_days * 0.5))
+        # Increase buffer to ensure rolling metrics don't start at 0
+        buffer_days = max(120, int(self.lookback_days * 0.6))
         total_days_needed = self.lookback_days + buffer_days
         
         # Calculate start date - fetch more data than needed

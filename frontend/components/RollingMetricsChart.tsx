@@ -97,7 +97,7 @@ export default function RollingMetricsChart({ rollingMetrics }: RollingMetricsCh
               />
               <YAxis 
                 tick={{ fontSize: 11, fill: '#6b7280' }}
-                label={{ value: 'Sharpe Ratio', angle: -90, position: 'insideLeft', offset: -10 }}
+                label={{ value: 'Sharpe Ratio', angle: -90, position: 'insideLeft', offset: 5 , dy: 30}}
               />
               <Tooltip 
               contentStyle={{ 
@@ -169,7 +169,7 @@ export default function RollingMetricsChart({ rollingMetrics }: RollingMetricsCh
               />
               <YAxis 
                 tick={{ fontSize: 11, fill: '#6b7280' }}
-                label={{ value: 'Volatility (%)', angle: -90, position: 'insideLeft', offset: -10 }}
+                label={{ value: 'Volatility (%)', angle: -90, position: 'insideLeft', offset: 5 , dy: 30}}
               />
               <Tooltip 
               contentStyle={{ 

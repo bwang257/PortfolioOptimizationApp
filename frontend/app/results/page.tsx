@@ -7,11 +7,9 @@ import PerformanceChart from '@/components/PerformanceChart';
 import DrawdownChart from '@/components/DrawdownChart';
 import EfficientFrontierChart from '@/components/EfficientFrontierChart';
 import RollingMetricsChart from '@/components/RollingMetricsChart';
-import CorrelationMatrix from '@/components/CorrelationMatrix';
 import PortfolioCompositionChart from '@/components/PortfolioCompositionChart';
 import RiskDecomposition from '@/components/RiskDecomposition';
 import MetricsTable from '@/components/ResultsCard';
-import ESGDisplay from '@/components/ESGDisplay';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function ResultsPage() {
@@ -19,7 +17,6 @@ export default function ResultsPage() {
   const [backtestPeriod, setBacktestPeriod] = useState<string>('1Y');
   const [optimizationObjective, setOptimizationObjective] = useState<string>('');
   const [portfolioType, setPortfolioType] = useState<string>('');
-  const [esgWeight, setEsgWeight] = useState<number>(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -27,7 +24,6 @@ export default function ResultsPage() {
     const storedPeriod = sessionStorage.getItem('backtestPeriod');
     const storedObjective = sessionStorage.getItem('optimizationObjective');
     const storedPortfolioType = sessionStorage.getItem('portfolioType');
-    const storedEsgWeight = sessionStorage.getItem('esgWeight');
     
     if (stored) {
       try {
@@ -40,9 +36,6 @@ export default function ResultsPage() {
         }
         if (storedPortfolioType) {
           setPortfolioType(storedPortfolioType);
-        }
-        if (storedEsgWeight) {
-          setEsgWeight(parseFloat(storedEsgWeight));
         }
       } catch (err) {
         console.error('Failed to parse results:', err);
@@ -99,7 +92,6 @@ export default function ResultsPage() {
               sessionStorage.removeItem('backtestPeriod');
               sessionStorage.removeItem('optimizationObjective');
               sessionStorage.removeItem('portfolioType');
-              sessionStorage.removeItem('esgWeight');
               router.push('/');
             }}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 transition-smooth hover-lift shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -131,12 +123,6 @@ export default function ResultsPage() {
                 {backtestPeriod}
               </div>
             </div>
-            <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">ESG Importance</div>
-              <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                {esgWeight > 0 ? `${Math.round(esgWeight * 100)}%` : 'Not Used'}
-              </div>
-            </div>
           </div>
           <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -158,19 +144,6 @@ export default function ResultsPage() {
             total_leverage={results.total_leverage}
           />
         </div>
-
-        {/* ESG Information */}
-        {(results.esg_weight && results.esg_weight > 0) && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter" style={{ animationDelay: '0.05s' }}>
-            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">ESG Sustainability Information</h2>
-            <ESGDisplay
-              esgWeight={results.esg_weight}
-              portfolioEsgScore={results.portfolio_esg_score}
-              tickerEsgScores={results.ticker_esg_scores}
-              weights={results.weights}
-            />
-          </div>
-        )}
 
         {/* Portfolio Composition */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter" style={{ animationDelay: '0.1s' }}>
@@ -209,16 +182,6 @@ export default function ResultsPage() {
         {results.rolling_metrics && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter chart-container-enter" style={{ animationDelay: '0.5s' }}>
             <RollingMetricsChart rollingMetrics={results.rolling_metrics} />
-          </div>
-        )}
-
-        {/* Correlation Matrix */}
-        {results.correlation_matrix && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter" style={{ animationDelay: '0.6s' }}>
-            <CorrelationMatrix 
-              correlationMatrix={results.correlation_matrix}
-              tickers={tickers}
-            />
           </div>
         )}
 

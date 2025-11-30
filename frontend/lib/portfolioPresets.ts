@@ -208,6 +208,51 @@ export const portfolioPresets: PortfolioPreset[] = [
     tickers: ["NEE", "ENPH", "FSLR", "SEDG", "RUN", "PLUG"],
     suggested_objective: "sharpe",
     suggested_esg_weight: 0.35
+  },
+  {
+    id: "esg-tech-leaders",
+    name: "ESG Tech Leaders",
+    description: "Technology companies with strong ESG ratings and sustainability practices",
+    category: "ESG-focused",
+    tickers: ["MSFT", "GOOGL", "AAPL", "NVDA", "ADBE"],
+    suggested_objective: "sharpe",
+    suggested_esg_weight: 0.4
+  },
+  {
+    id: "sustainable-finance",
+    name: "Sustainable Finance",
+    description: "Financial institutions with strong ESG commitments and sustainable practices",
+    category: "ESG-focused",
+    tickers: ["BLK", "SCHW", "COIN"],
+    suggested_objective: "sharpe",
+    suggested_esg_weight: 0.35
+  },
+  {
+    id: "green-infrastructure",
+    name: "Green Infrastructure",
+    description: "Utilities and infrastructure companies focused on renewable energy and sustainability",
+    category: "ESG-focused",
+    tickers: ["NEE", "AEP", "DUK", "SO"],
+    suggested_objective: "sharpe",
+    suggested_esg_weight: 0.45
+  },
+  {
+    id: "esg-healthcare",
+    name: "ESG Healthcare",
+    description: "Healthcare companies with strong ESG ratings and ethical practices",
+    category: "ESG-focused",
+    tickers: ["UNH", "CVS", "CI"],
+    suggested_objective: "sharpe",
+    suggested_esg_weight: 0.3
+  },
+  {
+    id: "climate-solutions",
+    name: "Climate Solutions",
+    description: "Companies focused on climate change solutions and environmental sustainability",
+    category: "ESG-focused",
+    tickers: ["ICLN", "QCLN", "PBW"],
+    suggested_objective: "sharpe",
+    suggested_esg_weight: 0.5
   }
 ];
 

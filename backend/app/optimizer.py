@@ -262,12 +262,13 @@ class PortfolioOptimizer:
         
         return optimal_weights, metrics
     
-    def calculate_efficient_frontier(self, num_points: int = 100) -> List[Dict[str, float]]:
+    def calculate_efficient_frontier(self, num_points: int = 100, extend_beyond_return: float = None, extend_beyond_risk: float = None) -> List[Dict[str, float]]:
         """
         Calculate efficient frontier points with proper lambda closure handling.
         
         Args:
             num_points: Number of points on the efficient frontier
+            extend_beyond_return: If provided, extend frontier beyond this return value
             
         Returns:
             List of dictionaries with 'risk' and 'return' keys, sorted by risk
@@ -321,6 +322,20 @@ class PortfolioOptimizer:
         else:
             max_return = mean_returns.max()
         
+        # Always extend beyond current portfolio return if specified
+        # This ensures the frontier has points beyond the current portfolio
+        if extend_beyond_return is not None:
+            # Always extend beyond the current portfolio return
+            # Use at least 40% extension beyond current return, or 25% of total range, whichever is larger
+            extension = max(
+                extend_beyond_return * 0.4,  # 40% beyond current return
+                (max_return - min_return) * 0.25,  # Or 25% of total range
+                (max_return - min_return) * 0.15  # At minimum 15% of total range
+            )
+            # Set max_return to be well beyond the current portfolio
+            # Ensure we always have points beyond, even if current portfolio is already at max
+            max_return = max(extend_beyond_return + extension, max_return * 1.15)
+        
         # Generate target returns
         target_returns = np.linspace(min_return, max_return, num_points)
         
@@ -349,10 +364,16 @@ class PortfolioOptimizer:
                     'fun': lambda w: 1.5 - np.sum(np.abs(w))
                 })
             
-            # Use previous solution as initial guess if available
+            # Use previous solution as initial guess if available for better convergence
             if efficient_frontier:
-                # Use last successful weights as starting point
+                # Try to use last successful weights, but we don't store them
+                # Use a weighted average approach: bias towards higher return assets
                 x0 = np.ones(self.n_assets) / self.n_assets
+                if len(mean_returns) > 0:
+                    # Slightly bias towards higher return assets for better convergence
+                    return_weights = mean_returns / mean_returns.sum()
+                    x0 = 0.8 * x0 + 0.2 * return_weights
+                    x0 = x0 / x0.sum()  # Normalize
             else:
                 x0 = np.ones(self.n_assets) / self.n_assets
             
@@ -392,5 +413,140 @@ class PortfolioOptimizer:
             if prev_risk is None or abs(point['risk'] - prev_risk) / prev_risk > 0.001:
                 filtered_frontier.append(point)
                 prev_risk = point['risk']
+        
+        # Always extend beyond current portfolio point to show the frontier continues
+        # This ensures the curve extends past the red dot on the chart
+        # Generate additional data points beyond the current portfolio for the chart
+        if extend_beyond_risk is not None and extend_beyond_return is not None and len(filtered_frontier) > 0:
+            max_risk_in_frontier = max(p['risk'] for p in filtered_frontier)
+            max_return_in_frontier = max(p['return'] for p in filtered_frontier)
+            
+            # Always extend beyond current portfolio to ensure the line continues past the red dot
+            # Check if we need to generate more points
+            needs_extension = (
+                extend_beyond_risk >= max_risk_in_frontier * 0.95 or  # Within 5% of max risk
+                extend_beyond_return >= max_return_in_frontier * 0.95 or  # Within 5% of max return
+                extend_beyond_risk > max_risk_in_frontier or  # Beyond max risk
+                extend_beyond_return > max_return_in_frontier  # Beyond max return
+            )
+            
+            # Always extend to show the curve continues beyond the current portfolio
+            if needs_extension:
+                # Current portfolio is at or near the end of frontier - need to extend
+                # Use the last point in the frontier as the starting point
+                
+                # Estimate target return needed to reach current portfolio risk + buffer
+                # Use the slope from the last few points
+                if len(filtered_frontier) >= 2:
+                    last_point = filtered_frontier[-1]
+                    second_last_point = filtered_frontier[-2]
+                    
+                    # Generate additional points by optimizing for progressively higher returns
+                    # This maintains the curve shape naturally since each point is optimized
+                    # Use smaller increments to ensure smooth curve continuation
+                    last_point = filtered_frontier[-1]
+                    
+                    # Calculate return increment based on the last few points to maintain curve shape
+                    if len(filtered_frontier) >= 3:
+                        # Use last 3 points to estimate return increment per step
+                        p1 = filtered_frontier[-3]
+                        p2 = filtered_frontier[-2]
+                        p3 = filtered_frontier[-1]
+                        
+                        # Calculate average return increment from last points
+                        return_inc1 = p2['return'] - p1['return']
+                        return_inc2 = p3['return'] - p2['return']
+                        avg_return_increment = (return_inc1 + return_inc2) / 2 if (return_inc1 > 0 and return_inc2 > 0) else return_inc2 if return_inc2 > 0 else (max_return - min_return) / 100
+                    else:
+                        # Fallback: use a small increment
+                        avg_return_increment = (max_return - min_return) / 100
+                    
+                    # Generate target returns with small increments to maintain smooth curve
+                    # Start from just above the last point and extend well beyond current portfolio
+                    start_return = last_point['return'] + avg_return_increment * 0.3
+                    # Extend to at least 40% beyond current portfolio return, ensuring we have enough points
+                    target_extension = max(
+                        extend_beyond_return * 1.4,  # 40% beyond current portfolio
+                        last_point['return'] + avg_return_increment * 30,  # Or 30 increments
+                        last_point['return'] * 1.3  # At least 30% more return than last point
+                    )
+                    end_return = target_extension
+                    num_extra_points = 60  # More points for smoother curve beyond current portfolio
+                    extra_returns = np.linspace(start_return, end_return, num_extra_points)
+                    
+                    # Use last successful weights as starting point
+                    # Start with equal weights but biased towards higher return assets for better convergence
+                    x0_start = np.ones(self.n_assets) / self.n_assets
+                    if len(mean_returns) > 0:
+                        # Bias towards assets with higher expected returns
+                        return_weights = mean_returns / mean_returns.sum()
+                        x0_start = 0.6 * x0_start + 0.4 * return_weights
+                        # Normalize to ensure it sums to 1
+                        x0_start = x0_start / x0_start.sum()
+                    
+                    successful_points = 0
+                    for extra_return in extra_returns:
+                        def make_return_constraint(tr):
+                            return lambda w: np.dot(w, mean_returns) - tr
+                        
+                        constraints = [
+                            {'type': 'eq', 'fun': lambda w: np.sum(w) - 1.0},
+                            {'type': 'eq', 'fun': make_return_constraint(extra_return)}
+                        ]
+                        
+                        if self.portfolio_type == "long_short":
+                            constraints.append({
+                                'type': 'ineq',
+                                'fun': lambda w: 1.5 - np.sum(np.abs(w))
+                            })
+                        
+                        try:
+                            result = minimize(
+                                portfolio_variance,
+                                x0_start,
+                                method='SLSQP',
+                                bounds=bounds,
+                                constraints=constraints,
+                                options={'maxiter': 2000, 'ftol': 1e-9}
+                            )
+                            
+                            if result.success:
+                                weights = result.x
+                                portfolio_return = float(np.dot(weights, mean_returns))
+                                portfolio_vol = float(np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights))))
+                                
+                                if portfolio_vol > 0 and np.isfinite(portfolio_return) and np.isfinite(portfolio_vol):
+                                    # Priority 1: Add if beyond current portfolio (this is most important)
+                                    # Priority 2: Add if extends beyond last point (for smooth curve)
+                                    # This ensures we always get points beyond the current portfolio
+                                    beyond_current_portfolio = (
+                                        portfolio_vol >= extend_beyond_risk * 0.99 or  # At or beyond current portfolio risk
+                                        portfolio_return >= extend_beyond_return * 0.99  # At or beyond current portfolio return
+                                    )
+                                    
+                                    extends_last_point = (
+                                        portfolio_vol >= last_point['risk'] * 0.998 or  # At least 99.8% of last risk
+                                        portfolio_return >= last_point['return'] * 0.998  # At least 99.8% of last return
+                                    )
+                                    
+                                    # Add point if it's beyond current portfolio OR extends beyond last point
+                                    # This ensures we get points beyond the current portfolio even if optimization results vary slightly
+                                    if beyond_current_portfolio or extends_last_point:
+                                        filtered_frontier.append({
+                                            'risk': portfolio_vol,
+                                            'return': portfolio_return
+                                        })
+                                        # Update starting point for next iteration using successful weights
+                                        x0_start = weights
+                                        successful_points += 1
+                                        
+                                        # Stop if we've extended well beyond the current portfolio (40% buffer)
+                                        if portfolio_vol > extend_beyond_risk * 1.4 and portfolio_return > extend_beyond_return * 1.4:
+                                            break
+                        except:
+                            continue
+                    
+                    # Re-sort after adding extra points
+                    filtered_frontier.sort(key=lambda x: x['risk'])
         
         return filtered_frontier

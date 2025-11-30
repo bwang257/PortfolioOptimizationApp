@@ -8,6 +8,7 @@ import logging
 import json
 import os
 import numpy as np
+import pandas as pd
 from pathlib import Path
 
 # Configure logging
@@ -150,17 +151,6 @@ async def optimize_portfolio(request: PortfolioRequest):
             for date, value in portfolio_cumulative.items()
         ]
         
-        # Calculate correlation matrix
-        correlation_matrix = {}
-        for i, ticker1 in enumerate(request.tickers):
-            correlation_matrix[ticker1] = {}
-            for j, ticker2 in enumerate(request.tickers):
-                if ticker1 in returns.columns and ticker2 in returns.columns:
-                    corr = float(returns[ticker1].corr(returns[ticker2]))
-                    correlation_matrix[ticker1][ticker2] = corr
-        
-        # Calculate efficient frontier
-        efficient_frontier = optimizer.calculate_efficient_frontier(num_points=50)
         
         # Calculate theoretical expected return and volatility using same method as efficient frontier
         # This ensures the current portfolio point appears on the frontier line
@@ -169,10 +159,20 @@ async def optimize_portfolio(request: PortfolioRequest):
         expected_return_theoretical = float(np.dot(optimal_weights, mean_returns))
         volatility_theoretical = float(np.sqrt(np.dot(optimal_weights.T, np.dot(cov_matrix, optimal_weights))))
         
+        # Calculate efficient frontier with extended range beyond current portfolio
+        # Pass both current return and risk to extend frontier beyond the portfolio point
+        # Increase num_points to ensure smooth curve extends well beyond current point
+        efficient_frontier = optimizer.calculate_efficient_frontier(
+            num_points=150,  # Increased from 120 to ensure better coverage
+            extend_beyond_return=expected_return_theoretical,
+            extend_beyond_risk=volatility_theoretical
+        )
+        
         # Calculate risk decomposition
         risk_decomposition = RiskMetrics.calculate_risk_decomposition(returns, optimal_weights)
         
-        # Calculate rolling metrics
+        # Calculate rolling metrics on all available data
+        # The data loader already fetches extra buffer days (90+ days) before the lookback period
         rolling_sharpe_30 = RiskMetrics.calculate_rolling_sharpe_ratio(portfolio_returns, window=30)
         rolling_sharpe_60 = RiskMetrics.calculate_rolling_sharpe_ratio(portfolio_returns, window=60)
         rolling_sharpe_90 = RiskMetrics.calculate_rolling_sharpe_ratio(portfolio_returns, window=90)
@@ -180,30 +180,48 @@ async def optimize_portfolio(request: PortfolioRequest):
         rolling_vol_60 = RiskMetrics.calculate_rolling_volatility(portfolio_returns, window=60)
         rolling_vol_90 = RiskMetrics.calculate_rolling_volatility(portfolio_returns, window=90)
         
+        # Only return data from the lookback period onwards
+        # This ensures the first returned value already has the full rolling window history
+        # (e.g., 90-day rolling metric on day 1 of lookback already has 90 days of history)
+        lookback_start_index = len(portfolio_returns) - request.lookback_days
+        rolling_sharpe_30_lookback = rolling_sharpe_30.iloc[lookback_start_index:]
+        rolling_sharpe_60_lookback = rolling_sharpe_60.iloc[lookback_start_index:]
+        rolling_sharpe_90_lookback = rolling_sharpe_90.iloc[lookback_start_index:]
+        rolling_vol_30_lookback = rolling_vol_30.iloc[lookback_start_index:]
+        rolling_vol_60_lookback = rolling_vol_60.iloc[lookback_start_index:]
+        rolling_vol_90_lookback = rolling_vol_90.iloc[lookback_start_index:]
+        
+        # Filter out NaN values and convert to response format
         rolling_metrics_data = {
             "sharpe_30": [
                 {"date": str(date), "value": float(value)}
-                for date, value in rolling_sharpe_30.items()
+                for date, value in rolling_sharpe_30_lookback.items()
+                if pd.notna(value) and not np.isnan(value)
             ],
             "sharpe_60": [
                 {"date": str(date), "value": float(value)}
-                for date, value in rolling_sharpe_60.items()
+                for date, value in rolling_sharpe_60_lookback.items()
+                if pd.notna(value) and not np.isnan(value)
             ],
             "sharpe_90": [
                 {"date": str(date), "value": float(value)}
-                for date, value in rolling_sharpe_90.items()
+                for date, value in rolling_sharpe_90_lookback.items()
+                if pd.notna(value) and not np.isnan(value)
             ],
             "volatility_30": [
                 {"date": str(date), "value": float(value)}
-                for date, value in rolling_vol_30.items()
+                for date, value in rolling_vol_30_lookback.items()
+                if pd.notna(value) and not np.isnan(value)
             ],
             "volatility_60": [
                 {"date": str(date), "value": float(value)}
-                for date, value in rolling_vol_60.items()
+                for date, value in rolling_vol_60_lookback.items()
+                if pd.notna(value) and not np.isnan(value)
             ],
             "volatility_90": [
                 {"date": str(date), "value": float(value)}
-                for date, value in rolling_vol_90.items()
+                for date, value in rolling_vol_90_lookback.items()
+                if pd.notna(value) and not np.isnan(value)
             ],
         }
         
@@ -237,7 +255,6 @@ async def optimize_portfolio(request: PortfolioRequest):
             total_leverage=total_leverage,
             price_history=price_history,
             portfolio_returns=portfolio_returns_data,
-            correlation_matrix=correlation_matrix,
             efficient_frontier=efficient_frontier,
             rolling_metrics=rolling_metrics_data,
             risk_decomposition=risk_decomposition,

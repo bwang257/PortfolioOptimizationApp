@@ -24,7 +24,7 @@ export default function RiskDecomposition({ riskDecomposition }: RiskDecompositi
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data} 
-            margin={{ top: 10, right: 30, left: 60, bottom: 60 }}
+            margin={{ top: 10, right: 30, left: 70, bottom: 60 }}
             barCategoryGap="20%"
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
@@ -37,7 +37,7 @@ export default function RiskDecomposition({ riskDecomposition }: RiskDecompositi
             />
             <YAxis 
               tick={{ fontSize: 11, fill: '#6b7280' }}
-              label={{ value: 'Risk Contribution (%)', angle: -90, position: 'insideLeft', offset: -10 }}
+              label={{ value: 'Risk Contribution (%)', angle: -90, position: 'insideLeft', offset: 5 , dy: 60}}
             />
             <Tooltip 
               cursor={false}
@@ -57,12 +57,11 @@ export default function RiskDecomposition({ riskDecomposition }: RiskDecompositi
               dataKey="contribution" 
               fill="#3B82F6"
               name="Risk Contribution"
-              radius={[4, 4, 0, 0]}
+              radius={[4, 4, 0, 0] as [number, number, number, number]}
               activeBar={{ 
                 fill: '#2563EB', 
                 stroke: '#1E40AF', 
-                strokeWidth: 2,
-                radius: [4, 4, 0, 0]
+                strokeWidth: 2
               }}
             />
           </BarChart>

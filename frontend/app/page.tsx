@@ -17,8 +17,7 @@ export default function Home() {
       preset: {
         id: preset.id,
         name: preset.name,
-        suggested_objective: preset.suggested_objective,
-        suggested_esg_weight: preset.suggested_esg_weight || 0
+        suggested_objective: preset.suggested_objective
       },
       mode: 'preset'
     };
@@ -49,7 +48,7 @@ export default function Home() {
             Portfolio Optimizer
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
-            Optimize your stock portfolio using advanced risk-adjusted metrics
+            Optimize your stock portfolio using advanced metrics
           </p>
         </div>
 

@@ -50,13 +50,14 @@ class RiskMetrics:
             risk_free_rate: Annual risk-free rate
             
         Returns:
-            Series of rolling Sharpe ratios
+            Series of rolling Sharpe ratios (NaN for insufficient data, not filled with 0)
         """
         rolling_mean = returns.rolling(window=window).mean() * 252
         rolling_std = returns.rolling(window=window).std() * np.sqrt(252)
         rolling_excess = rolling_mean - risk_free_rate
         rolling_sharpe = rolling_excess / rolling_std
-        return rolling_sharpe.fillna(0)
+        # Don't fill NaN with 0 - let caller filter them out
+        return rolling_sharpe
     
     @staticmethod
     def calculate_rolling_volatility(returns: pd.Series, window: int = 30) -> pd.Series:
@@ -68,10 +69,11 @@ class RiskMetrics:
             window: Rolling window size in days
             
         Returns:
-            Series of rolling annualized volatility
+            Series of rolling annualized volatility (NaN for insufficient data, not filled with 0)
         """
         rolling_vol = returns.rolling(window=window).std() * np.sqrt(252)
-        return rolling_vol.fillna(0)
+        # Don't fill NaN with 0 - let caller filter them out
+        return rolling_vol
     
     @staticmethod
     def calculate_risk_decomposition(returns: pd.DataFrame, weights: np.ndarray) -> Dict[str, float]:

@@ -27,7 +27,7 @@ export default function EfficientFrontierChart({
   );
   
   // Prepare data for the frontier line
-  const frontierData = validFrontier.map(point => ({
+  let frontierData = validFrontier.map(point => ({
     risk: point.risk * 100,
     return: point.return * 100,
   }));
@@ -37,6 +37,71 @@ export default function EfficientFrontierChart({
     risk: isFinite(currentRisk) && !isNaN(currentRisk) ? currentRisk * 100 : 0,
     return: isFinite(currentReturn) && !isNaN(currentReturn) ? currentReturn * 100 : 0,
   };
+  
+  // Extend the frontier past the current risk so the curve continues visually
+  // This ensures the line extends beyond the red dot even if backend doesn't provide enough points
+  if (frontierData.length >= 2 && currentPoint.risk > 0 && currentPoint.return > 0) {
+    const last = frontierData[frontierData.length - 1];
+    const secondLast = frontierData[frontierData.length - 2];
+    
+    // Calculate slope from the last two points
+    const slope = (last.risk - secondLast.risk) !== 0 
+      ? (last.return - secondLast.return) / (last.risk - secondLast.risk)
+      : 0;
+    
+    // If the current portfolio risk is beyond the last real frontier point:
+    // mathematically project new points using the slope of the last segment
+    if (currentPoint.risk > last.risk && slope !== 0 && isFinite(slope)) {
+      // Add point at current portfolio risk
+      const pointAtCurrent = {
+        risk: currentPoint.risk,
+        return: last.return + slope * (currentPoint.risk - last.risk),
+      };
+      
+      // Add multiple points beyond current portfolio to ensure smooth extension
+      // Extend by 40% beyond current portfolio for better visual continuation
+      const extensionDistance = currentPoint.risk - last.risk;
+      const extendedPoints = [];
+      
+      // Add point at current portfolio
+      extendedPoints.push(pointAtCurrent);
+      
+      // Add points beyond current portfolio (20%, 40%, 60% extension)
+      for (const extensionPercent of [0.2, 0.4, 0.6]) {
+        const extendedRisk = currentPoint.risk + extensionDistance * extensionPercent;
+        const extendedReturn = pointAtCurrent.return + slope * (extendedRisk - currentPoint.risk);
+        
+        if (isFinite(extendedRisk) && isFinite(extendedReturn) && extendedRisk > currentPoint.risk) {
+          extendedPoints.push({
+            risk: extendedRisk,
+            return: extendedReturn,
+          });
+        }
+      }
+      
+      // Add all extended points
+      frontierData.push(...extendedPoints);
+      
+      // Re-sort by risk to maintain proper curve shape
+      frontierData.sort((a, b) => a.risk - b.risk);
+    }
+    
+    // Also ensure we have points up to the current portfolio if it's before the last point
+    // but there's a gap (current portfolio is between existing points)
+    if (currentPoint.risk < last.risk && currentPoint.risk > secondLast.risk && slope !== 0 && isFinite(slope)) {
+      // Current portfolio is between secondLast and last - ensure we have a point there
+      const pointAtCurrent = {
+        risk: currentPoint.risk,
+        return: secondLast.return + slope * (currentPoint.risk - secondLast.risk),
+      };
+      
+      // Insert point at current portfolio position (maintain sorted order)
+      const insertIndex = frontierData.findIndex(p => p.risk > currentPoint.risk);
+      if (insertIndex > 0) {
+        frontierData.splice(insertIndex, 0, pointAtCurrent);
+      }
+    }
+  }
   
   if (frontierData.length === 0) {
     return (
@@ -76,19 +141,22 @@ export default function EfficientFrontierChart({
   
   // Extend domain to show more of the frontier beyond current point
   // If there are points beyond current, extend to show them plus some padding
-  // Otherwise, extend by 15% of the total range
+  // Otherwise, extend by 20% of the total range to show the curve continues
   let riskMaxDomain: number;
   if (hasPointsBeyond) {
-    // Show all points beyond current plus 10% padding
+    // Show all points beyond current plus 15% padding
     const distanceBeyond = maxRiskBeyondCurrent - currentPoint.risk;
-    riskMaxDomain = maxRiskBeyondCurrent + (distanceBeyond * 0.1);
+    riskMaxDomain = maxRiskBeyondCurrent + (distanceBeyond * 0.15);
   } else {
     // No points beyond, but still extend a bit to show the curve continues
-    riskMaxDomain = riskMax + ((riskMax - riskMin) * 0.15);
+    // Extend by 20% of the total range
+    riskMaxDomain = riskMax + ((riskMax - riskMin) * 0.2);
   }
   
+  // Also extend the return domain to show more of the frontier
+  const returnExtension = (returnMax - returnMin) * 0.15 || 1;
+  
   const returnPadding = (returnMax - returnMin) * 0.05 || 1;
-  const returnExtension = (returnMax - returnMin) * 0.1 || 1;
   
   const riskDomain = [Math.max(0, riskMin - riskPadding), riskMaxDomain];
   const returnDomain = [returnMin - returnPadding, returnMax + returnExtension];
@@ -126,7 +194,7 @@ export default function EfficientFrontierChart({
               dataKey="return"
               name="Return"
               unit="%"
-              label={{ value: 'Expected Return (%)', angle: -90, position: 'insideLeft', offset: -10 }}
+              label={{ value: 'Expected Return (%)', angle: -90, position: 'insideLeft', offset: 5, dy: 40}}
               tick={{ fontSize: 11, fill: '#6b7280' }}
               domain={returnDomain}
               tickFormatter={(value) => Math.round(value).toString()}

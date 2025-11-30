@@ -21,7 +21,6 @@ class PortfolioResponse(BaseModel):
     total_leverage: Optional[float] = Field(None, description="Total leverage (L1 norm) for long/short")
     price_history: Optional[Dict[str, List[Dict[str, Any]]]] = Field(None, description="Historical price data by ticker")
     portfolio_returns: Optional[List[Dict[str, Any]]] = Field(None, description="Portfolio cumulative returns over time")
-    correlation_matrix: Optional[Dict[str, Dict[str, float]]] = Field(None, description="Asset correlation matrix")
     efficient_frontier: Optional[List[Dict[str, float]]] = Field(None, description="Efficient frontier points (risk-return pairs)")
     rolling_metrics: Optional[Dict[str, List[Dict[str, Any]]]] = Field(None, description="Rolling Sharpe ratio and volatility over time")
     risk_decomposition: Optional[Dict[str, float]] = Field(None, description="Risk contribution percentage by asset")
