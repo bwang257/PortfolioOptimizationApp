@@ -54,20 +54,44 @@ export default function EfficientFrontierChart({
   }
   
   // Calculate domain to include both frontier and current portfolio point
-  const riskValues = [...frontierData.map(p => p.risk), currentPoint.risk];
-  const returnValues = [...frontierData.map(p => p.return), currentPoint.return];
+  // Extend beyond current point to show more of the frontier curve
+  const riskValues = frontierData.map(p => p.risk);
+  const returnValues = frontierData.map(p => p.return);
   
   const riskMin = Math.min(...riskValues);
   const riskMax = Math.max(...riskValues);
   const returnMin = Math.min(...returnValues);
   const returnMax = Math.max(...returnValues);
   
-  // Add padding to ensure visibility (5% padding on each side)
-  const riskPadding = (riskMax - riskMin) * 0.05 || 1;
-  const returnPadding = (returnMax - returnMin) * 0.05 || 1;
+  // Ensure we show points beyond the current portfolio point
+  // Calculate how much of the frontier is beyond the current point
+  const pointsBeyondCurrent = riskValues.filter(r => r > currentPoint.risk);
+  const hasPointsBeyond = pointsBeyondCurrent.length > 0;
+  const maxRiskBeyondCurrent = hasPointsBeyond 
+    ? Math.max(...pointsBeyondCurrent) 
+    : riskMax;
   
-  const riskDomain = [Math.max(0, riskMin - riskPadding), riskMax + riskPadding];
-  const returnDomain = [returnMin - returnPadding, returnMax + returnPadding];
+  // Add padding: 5% on left
+  const riskPadding = (riskMax - riskMin) * 0.05 || 1;
+  
+  // Extend domain to show more of the frontier beyond current point
+  // If there are points beyond current, extend to show them plus some padding
+  // Otherwise, extend by 15% of the total range
+  let riskMaxDomain: number;
+  if (hasPointsBeyond) {
+    // Show all points beyond current plus 10% padding
+    const distanceBeyond = maxRiskBeyondCurrent - currentPoint.risk;
+    riskMaxDomain = maxRiskBeyondCurrent + (distanceBeyond * 0.1);
+  } else {
+    // No points beyond, but still extend a bit to show the curve continues
+    riskMaxDomain = riskMax + ((riskMax - riskMin) * 0.15);
+  }
+  
+  const returnPadding = (returnMax - returnMin) * 0.05 || 1;
+  const returnExtension = (returnMax - returnMin) * 0.1 || 1;
+  
+  const riskDomain = [Math.max(0, riskMin - riskPadding), riskMaxDomain];
+  const returnDomain = [returnMin - returnPadding, returnMax + returnExtension];
   
   return (
     <div className="w-full overflow-hidden">

@@ -7,6 +7,7 @@ from .metrics import RiskMetrics
 import logging
 import json
 import os
+import numpy as np
 from pathlib import Path
 
 # Configure logging
@@ -161,6 +162,13 @@ async def optimize_portfolio(request: PortfolioRequest):
         # Calculate efficient frontier
         efficient_frontier = optimizer.calculate_efficient_frontier(num_points=50)
         
+        # Calculate theoretical expected return and volatility using same method as efficient frontier
+        # This ensures the current portfolio point appears on the frontier line
+        mean_returns = returns_for_optimization.mean() * 252
+        cov_matrix = returns_for_optimization.cov() * 252
+        expected_return_theoretical = float(np.dot(optimal_weights, mean_returns))
+        volatility_theoretical = float(np.sqrt(np.dot(optimal_weights.T, np.dot(cov_matrix, optimal_weights))))
+        
         # Calculate risk decomposition
         risk_decomposition = RiskMetrics.calculate_risk_decomposition(returns, optimal_weights)
         
@@ -235,7 +243,9 @@ async def optimize_portfolio(request: PortfolioRequest):
             risk_decomposition=risk_decomposition,
             esg_weight=float(esg_weight) if esg_weight > 0 else None,
             portfolio_esg_score=portfolio_esg_score,
-            ticker_esg_scores=ticker_esg_scores_dict
+            ticker_esg_scores=ticker_esg_scores_dict,
+            expected_return_theoretical=expected_return_theoretical,
+            volatility_theoretical=volatility_theoretical
         )
         
         logger.info(f"Optimization successful. Sharpe ratio: {sharpe_ratio:.2f}")

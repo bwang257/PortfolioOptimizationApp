@@ -28,6 +28,8 @@ class PortfolioResponse(BaseModel):
     esg_weight: Optional[float] = Field(None, description="ESG importance weight used in optimization (0.0 to 1.0)")
     portfolio_esg_score: Optional[float] = Field(None, description="Weighted average ESG score of the portfolio (lower is better)")
     ticker_esg_scores: Optional[Dict[str, float]] = Field(None, description="Individual ESG scores for each ticker (lower is better)")
+    expected_return_theoretical: Optional[float] = Field(None, description="Theoretical expected return using mean returns (for efficient frontier display)")
+    volatility_theoretical: Optional[float] = Field(None, description="Theoretical volatility using covariance matrix (for efficient frontier display)")
 
 
 class TickerInfo(BaseModel):

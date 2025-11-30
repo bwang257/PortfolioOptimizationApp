@@ -31,6 +31,8 @@ export interface PortfolioResponse {
   esg_weight?: number | null;
   portfolio_esg_score?: number | null;
   ticker_esg_scores?: Record<string, number>;
+  expected_return_theoretical?: number | null;
+  volatility_theoretical?: number | null;
 }
 
 export interface TickerInfo {

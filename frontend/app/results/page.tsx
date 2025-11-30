@@ -12,6 +12,7 @@ import PortfolioCompositionChart from '@/components/PortfolioCompositionChart';
 import RiskDecomposition from '@/components/RiskDecomposition';
 import MetricsTable from '@/components/ResultsCard';
 import ESGDisplay from '@/components/ESGDisplay';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function ResultsPage() {
   const [results, setResults] = useState<PortfolioResponse | null>(null);
@@ -79,6 +80,9 @@ export default function ResultsPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        <div className="flex justify-end mb-4">
+          <ThemeToggle />
+        </div>
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -96,7 +100,7 @@ export default function ResultsPage() {
               sessionStorage.removeItem('optimizationObjective');
               sessionStorage.removeItem('portfolioType');
               sessionStorage.removeItem('esgWeight');
-              router.push('/start');
+              router.push('/');
             }}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 transition-smooth hover-lift shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             aria-label="Start a new portfolio optimization"
@@ -195,8 +199,8 @@ export default function ResultsPage() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hover-lift card-enter chart-container-enter" style={{ animationDelay: '0.4s' }}>
             <EfficientFrontierChart
               efficientFrontier={results.efficient_frontier}
-              currentRisk={results.volatility}
-              currentReturn={results.expected_return}
+              currentRisk={results.volatility_theoretical ?? results.volatility}
+              currentReturn={results.expected_return_theoretical ?? results.expected_return}
             />
           </div>
         )}
