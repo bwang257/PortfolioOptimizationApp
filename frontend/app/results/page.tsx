@@ -3,25 +3,21 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PortfolioResponse } from '@/lib/api';
-import PerformanceLineChart from '@/components/PerformanceLineChart';
-import DrawdownChart from '@/components/DrawdownChart';
-import PortfolioCompositionChart from '@/components/PortfolioCompositionChart';
-import RollingVolatilityChart from '@/components/RollingVolatilityChart';
-import HoldingsList from '@/components/HoldingsList';
+import CompactPerformanceChart from '@/components/CompactPerformanceChart';
+import CompactAllocationChart from '@/components/CompactAllocationChart';
+import CompactRiskMetrics from '@/components/CompactRiskMetrics';
+import CompactHoldingsList from '@/components/CompactHoldingsList';
 import MetricsTable from '@/components/ResultsCard';
 import ThemeToggle from '@/components/ThemeToggle';
 import ProModeToggle from '@/components/ProModeToggle';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
-
-type TabType = 'Performance' | 'Drawdown' | 'Allocation' | 'Risk';
+import { BacktestPeriod } from '@/components/BacktestPeriodSelector';
 
 export default function ResultsPage() {
   const [results, setResults] = useState<PortfolioResponse | null>(null);
-  const [backtestPeriod, setBacktestPeriod] = useState<string>('1Y');
+  const [backtestPeriod, setBacktestPeriod] = useState<BacktestPeriod>('1Y');
   const [optimizationObjective, setOptimizationObjective] = useState<string>('');
   const [portfolioType, setPortfolioType] = useState<string>('');
-  const [displayReturn, setDisplayReturn] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>('Performance');
   const router = useRouter();
   const { isProMode } = useUserPreferences();
 
@@ -35,7 +31,7 @@ export default function ResultsPage() {
       try {
         setResults(JSON.parse(stored));
         if (storedPeriod) {
-          setBacktestPeriod(storedPeriod);
+          setBacktestPeriod(storedPeriod as BacktestPeriod);
         }
         if (storedObjective) {
           setOptimizationObjective(storedObjective);
@@ -90,125 +86,112 @@ export default function ResultsPage() {
     }
   };
 
-  // Calculate the return to display (use hovered value or default to expected return)
-  // expected_return is a decimal (e.g., 0.15 for 15%), so multiply by 100 for display
-  const returnToDisplay = displayReturn !== null 
-    ? displayReturn 
-    : (results.expected_return * 100);
+  // Calculate total return and current value
+  const totalReturn = results.portfolio_returns && results.portfolio_returns.length > 0
+    ? ((results.portfolio_returns[results.portfolio_returns.length - 1].value / results.portfolio_returns[0].value - 1) * 100)
+    : 0;
+  
+  const currentValue = results.portfolio_returns && results.portfolio_returns.length > 0
+    ? results.portfolio_returns[results.portfolio_returns.length - 1].value
+    : 1;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-end items-center gap-4 mb-6">
-          <ProModeToggle />
-          <ThemeToggle />
-        </div>
-        
-        {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
-              Your Portfolio
-            </h1>
-            <p className="text-base text-slate-600 dark:text-gray-400">
-              Based on {backtestPeriod} of historical data
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Portfolio Dashboard</h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {backtestPeriod} backtest period
             </p>
           </div>
-          <button
-            onClick={() => {
-              sessionStorage.removeItem('portfolioResults');
-              sessionStorage.removeItem('backtestPeriod');
-              sessionStorage.removeItem('optimizationObjective');
-              sessionStorage.removeItem('portfolioType');
-              router.push('/');
-            }}
-            className="px-6 py-3 bg-emerald-500 text-white font-bold rounded-full hover:bg-emerald-600 active:bg-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 whitespace-nowrap"
-            aria-label="Start a new portfolio optimization"
-          >
-            New Optimization
-          </button>
-        </div>
-
-        {/* Unified Dashboard Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-md p-6 sm:p-8 mb-8">
-          {/* Header with Expected Return and Tabs */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            {/* Left Side: Expected Return */}
-            <div className="flex-shrink-0">
-              <div className="text-sm font-semibold text-slate-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
-                Expected Annual Return
-              </div>
-              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white tracking-tight">
-                {returnToDisplay.toFixed(1)}%
-              </div>
-            </div>
-
-            {/* Right Side: Segmented Control */}
-            <div className="flex-shrink-0">
-              <div className="inline-flex bg-slate-100 dark:bg-gray-700 p-1 rounded-full shadow-sm flex-wrap gap-1">
-                {(['Performance', 'Drawdown', 'Risk', 'Allocation'] as TabType[]).map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`
-                      px-3 sm:px-4 py-2 rounded-full font-semibold text-xs sm:text-sm transition-all duration-200
-                      ${activeTab === tab
-                        ? 'bg-white dark:bg-gray-600 text-emerald-600 dark:text-emerald-400 shadow-md'
-                        : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-200'
-                      }
-                    `}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Chart Section */}
-          <div className="relative" style={{ minHeight: '400px' }}>
-            <div
-              key={activeTab}
-              className="animate-fade-in"
-              style={{
-                animation: 'fadeIn 0.3s ease-in-out'
+          <div className="flex items-center gap-3">
+            <ProModeToggle />
+            <ThemeToggle />
+            <button
+              onClick={() => {
+                sessionStorage.removeItem('portfolioResults');
+                sessionStorage.removeItem('backtestPeriod');
+                sessionStorage.removeItem('optimizationObjective');
+                sessionStorage.removeItem('portfolioType');
+                router.push('/');
               }}
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm transition-all"
             >
-              {activeTab === 'Performance' && results.portfolio_returns && (
-                <PerformanceLineChart
-                  portfolioReturns={results.portfolio_returns}
-                  benchmarkReturns={results.benchmark_returns}
-                />
-              )}
-              {activeTab === 'Drawdown' && results.portfolio_returns && (
-                <DrawdownChart portfolioReturns={results.portfolio_returns} />
-              )}
-              {activeTab === 'Allocation' && (
-                <PortfolioCompositionChart weights={results.weights} />
-              )}
-              {activeTab === 'Risk' && results.rolling_metrics && (
-                <RollingVolatilityChart rollingMetrics={results.rolling_metrics} />
-              )}
-            </div>
+              New Analysis
+            </button>
           </div>
         </div>
 
-        {/* Holdings List */}
-        <HoldingsList weights={results.weights} />
+        {/* CSS Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+          {/* Performance Widget - Span 2 columns */}
+          <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Portfolio Performance</h2>
+              <select
+                value={backtestPeriod}
+                onChange={(e) => setBacktestPeriod(e.target.value as BacktestPeriod)}
+                className="text-xs border border-gray-200 dark:border-gray-700 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+              >
+                <option value="1M">1 Month</option>
+                <option value="3M">3 Months</option>
+                <option value="6M">6 Months</option>
+                <option value="1Y">1 Year</option>
+                <option value="2Y">2 Years</option>
+                <option value="5Y">5 Years</option>
+              </select>
+            </div>
+            {results.portfolio_returns && (
+              <CompactPerformanceChart
+                portfolioReturns={results.portfolio_returns}
+                benchmarkReturns={results.benchmark_returns}
+                totalReturn={totalReturn}
+                currentValue={currentValue}
+              />
+            )}
+          </div>
 
-        {/* Full Metrics Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 sm:p-8 mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold mb-6 text-slate-900 dark:text-white tracking-tight">All Performance Metrics</h2>
-          <MetricsTable
-            expected_return={results.expected_return}
-            volatility={results.volatility}
-            sharpe_ratio={results.sharpe_ratio}
-            sortino_ratio={results.sortino_ratio}
-            calmar_ratio={results.calmar_ratio}
-            max_drawdown={results.max_drawdown}
-            total_leverage={results.total_leverage}
-            isSimpleMode={!isProMode}
-          />
+          {/* Allocation Widget - Span 1 column */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Asset Allocation</h2>
+            <CompactAllocationChart weights={results.weights} />
+          </div>
+
+          {/* Risk Analysis Widget - Span 1 column */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Risk Metrics</h2>
+            <CompactRiskMetrics
+              volatility={results.volatility}
+              sharpe_ratio={results.sharpe_ratio}
+              sortino_ratio={results.sortino_ratio}
+              max_drawdown={results.max_drawdown}
+              calmar_ratio={results.calmar_ratio}
+              isProMode={isProMode}
+            />
+          </div>
+
+          {/* Holdings Widget - Span 3 columns */}
+          <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Top Positions</h2>
+            <CompactHoldingsList weights={results.weights} />
+          </div>
+
+          {/* Full Metrics Table - Span 3 columns */}
+          <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">All Performance Metrics</h2>
+            <MetricsTable
+              expected_return={results.expected_return}
+              volatility={results.volatility}
+              sharpe_ratio={results.sharpe_ratio}
+              sortino_ratio={results.sortino_ratio}
+              calmar_ratio={results.calmar_ratio}
+              max_drawdown={results.max_drawdown}
+              total_leverage={results.total_leverage}
+              isSimpleMode={!isProMode}
+            />
+          </div>
         </div>
       </div>
     </div>
