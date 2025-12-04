@@ -25,6 +25,11 @@ body {
   letter-spacing: -0.01em;
 }
 
+/* Fintech Design System - Headers with tight tracking */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.02em;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -138,4 +143,14 @@ body {
 /* Chart container animations */
 .chart-container-enter {
   animation: fadeIn 0.8s ease-out;
+}
+
+/* Scrollbar hide utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

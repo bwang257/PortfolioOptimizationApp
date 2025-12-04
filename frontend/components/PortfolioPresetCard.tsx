@@ -9,29 +9,43 @@ interface PortfolioPresetCardProps {
   onClick: () => void;
 }
 
-const categoryColors: Record<string, string> = {
-  'Tech': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  'Finance': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  'Healthcare': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
-  'Energy': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-  'Consumer': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  'ETFs': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
-  'Diversified': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
-  'ESG-focused': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
+// Category colors for visual assets (circles/icons)
+const categoryCircleColors: Record<string, string> = {
+  'Tech': 'bg-blue-500',
+  'Finance': 'bg-emerald-500',
+  'Healthcare': 'bg-pink-400',
+  'Energy': 'bg-amber-400',
+  'Consumer': 'bg-purple-400',
+  'ETFs': 'bg-indigo-400',
+  'Diversified': 'bg-slate-400',
+  'ESG-focused': 'bg-emerald-500',
+};
+
+// Pill colors (soft pastel backgrounds)
+const categoryPillColors: Record<string, string> = {
+  'Tech': 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  'Finance': 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+  'Healthcare': 'bg-pink-50 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300',
+  'Energy': 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  'Consumer': 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  'ETFs': 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+  'Diversified': 'bg-slate-50 text-slate-700 dark:bg-slate-700/30 dark:text-slate-300',
+  'ESG-focused': 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
 };
 
 export default function PortfolioPresetCard({ preset, isSelected, onClick }: PortfolioPresetCardProps) {
   const { isProMode } = useUserPreferences();
-  const categoryColor = categoryColors[preset.category] || categoryColors['Diversified'];
+  const circleColor = categoryCircleColors[preset.category] || categoryCircleColors['Diversified'];
+  const pillColor = categoryPillColors[preset.category] || categoryPillColors['Diversified'];
   const sampleTickers = preset.tickers.slice(0, 4).join(', ');
   const remainingCount = preset.tickers.length > 4 ? preset.tickers.length - 4 : 0;
 
   // Calculate risk level based on suggested objective
   const getRiskLevel = () => {
-    if (preset.suggested_objective === 'min_variance') return { label: 'Low', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' };
-    if (preset.suggested_objective === 'sharpe') return { label: 'Moderate', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' };
-    if (preset.suggested_objective === 'sortino' || preset.suggested_objective === 'calmar') return { label: 'Moderate-High', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' };
-    return { label: 'Moderate', color: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' };
+    if (preset.suggested_objective === 'min_variance') return { label: 'Low', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' };
+    if (preset.suggested_objective === 'sharpe') return { label: 'Moderate', color: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' };
+    if (preset.suggested_objective === 'sortino' || preset.suggested_objective === 'calmar') return { label: 'Moderate-High', color: 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' };
+    return { label: 'Moderate', color: 'bg-slate-50 text-slate-700 dark:bg-slate-700/30 dark:text-slate-300' };
   };
 
   const riskLevel = getRiskLevel();
@@ -40,48 +54,58 @@ export default function PortfolioPresetCard({ preset, isSelected, onClick }: Por
     <div
       onClick={onClick}
       className={`
-        relative p-5 sm:p-6 rounded-card border-2 cursor-pointer transition-all duration-200
+        relative p-6 sm:p-8 rounded-2xl cursor-pointer transition-all duration-300
         ${isSelected 
-          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-xl scale-[1.01]' 
-          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-lg'
+          ? 'bg-white dark:bg-gray-800 shadow-lg ring-2 ring-emerald-500 scale-[1.02]' 
+          : 'bg-white dark:bg-gray-800 shadow-sm hover:shadow-md'
         }
       `}
     >
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+      {/* Visual Asset - Color-coded circle */}
+      <div className="flex items-start gap-4 mb-4">
+        <div className={`w-12 h-12 ${circleColor} rounded-full flex-shrink-0 flex items-center justify-center shadow-sm`}>
+          <span className="text-white font-bold text-lg">
+            {preset.category.charAt(0)}
+          </span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">
             {preset.name}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+          <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed">
             {preset.description}
           </p>
         </div>
         {isSelected && (
-          <div className="ml-2 flex-shrink-0">
-            <svg className="w-6 h-6 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
+          <div className="flex-shrink-0">
+            <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
           </div>
         )}
       </div>
 
-      <div className="flex items-center gap-2 mb-3">
-        <span className={`text-xs font-medium px-2 py-1 rounded ${categoryColor}`}>
+      {/* Pills */}
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${pillColor}`}>
           {preset.category}
         </span>
-        <span className="text-xs text-gray-500 dark:text-gray-400">
+        <span className="text-xs text-slate-500 dark:text-gray-400 font-medium">
           {preset.tickers.length} stock{preset.tickers.length !== 1 ? 's' : ''}
         </span>
         {isProMode && (
-          <span className={`text-xs font-medium px-2 py-1 rounded ${riskLevel.color}`}>
+          <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${riskLevel.color}`}>
             Risk: {riskLevel.label}
           </span>
         )}
       </div>
 
-      <div className="text-sm text-gray-700 dark:text-gray-300">
-        <span className="font-medium">Tickers:</span>{' '}
-        <span className={`text-gray-600 dark:text-gray-400 ${isProMode ? 'font-mono text-xs' : ''}`}>
+      {/* Tickers */}
+      <div className="text-sm text-slate-700 dark:text-gray-300">
+        <span className="font-semibold text-slate-900 dark:text-white">Tickers:</span>{' '}
+        <span className={`text-slate-600 dark:text-gray-400 ${isProMode ? 'font-mono text-xs' : ''}`}>
           {sampleTickers}
           {remainingCount > 0 && ` +${remainingCount} more`}
         </span>

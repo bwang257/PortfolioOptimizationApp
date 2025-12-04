@@ -38,8 +38,9 @@ const config: Config = {
         },
       },
       borderRadius: {
-        'card': '16px',
-        'card-sm': '12px',
+        'card': '24px', // rounded-2xl equivalent
+        'card-sm': '20px', // rounded-xl equivalent
+        'pill': '9999px', // fully rounded
       },
       spacing: {
         '18': '4.5rem',

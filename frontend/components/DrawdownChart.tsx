@@ -53,9 +53,6 @@ export default function DrawdownChart({ portfolioReturns }: DrawdownChartProps) 
   
   return (
     <div className="w-full overflow-hidden">
-      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-        Drawdown Analysis
-      </h3>
       <div className="w-full" style={{ height: '400px', minHeight: 0 }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 60, bottom: 60 }}>
@@ -105,9 +102,6 @@ export default function DrawdownChart({ portfolioReturns }: DrawdownChartProps) 
           </AreaChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 break-words">
-        Drawdown shows the peak-to-trough decline in portfolio value over time
-      </p>
     </div>
   );
 }

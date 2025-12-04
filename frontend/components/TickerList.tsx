@@ -139,8 +139,8 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
   };
 
   return (
-    <div className="space-y-2 relative">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+    <div className="space-y-4 relative">
+      <label className="block text-sm font-semibold text-slate-900 dark:text-white tracking-tight">
         Stock Tickers (max {maxTickers})
       </label>
       <div className="flex gap-2 relative">
@@ -160,7 +160,7 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
               }
             }}
             placeholder="Search for ticker symbol or company name"
-            className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-card-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-200"
+            className="w-full px-6 py-5 text-lg border-0 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-800 text-slate-900 dark:text-white transition-all duration-200 placeholder:text-slate-400"
             disabled={tickers.length >= maxTickers}
             aria-label="Search for stock ticker or company name"
             aria-autocomplete="list"
@@ -202,7 +202,7 @@ export default function TickerList({ tickers, onChange, maxTickers = 30 }: Ticke
         <button
           onClick={() => handleAdd()}
           disabled={!inputValue.trim() || tickers.length >= maxTickers}
-          className="px-5 py-3 bg-primary-600 text-white font-semibold rounded-card-sm hover:bg-primary-700 active:bg-primary-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg disabled:hover:shadow-md disabled:hover:translate-y-0 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          className="px-8 py-5 bg-emerald-500 text-white font-bold rounded-full hover:bg-emerald-600 active:bg-emerald-700 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl disabled:hover:shadow-lg disabled:hover:translate-y-0 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 text-base"
           aria-label="Add ticker to portfolio"
         >
           Add

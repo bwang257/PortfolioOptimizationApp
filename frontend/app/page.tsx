@@ -36,7 +36,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header with Theme Toggle */}
         <div className="flex justify-end items-center gap-4 mb-8 sm:mb-10">
@@ -46,23 +46,23 @@ export default function Home() {
 
         {/* Hero Section */}
         <div className="text-center mb-12 sm:mb-16">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 tracking-tight">
             Portfolio Optimizer
           </h1>
-          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-            Build an optimized investment portfolio tailored to your risk preferences using institutional-grade portfolio theory
+          <p className="text-lg sm:text-xl text-slate-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+            Build an optimized investment portfolio tailored to your risk preferences
           </p>
         </div>
 
         {/* Preset Selection */}
         <div className="space-y-6 sm:space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
               Choose a Portfolio Preset
             </h2>
             <button
               onClick={handleManualEntry}
-              className="px-6 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-card-sm border border-gray-200 dark:border-gray-700 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="px-6 py-3 text-sm font-semibold text-slate-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-full shadow-sm hover:shadow-md transition-all duration-200"
             >
               Manual Entry
             </button>

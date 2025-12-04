@@ -27,14 +27,14 @@ export default function BacktestPeriodSelector({ value, onChange }: BacktestPeri
   ];
 
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+    <div className="space-y-3">
+      <label className="block text-sm font-semibold text-slate-900 dark:text-white tracking-tight">
         Backtest Period
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as BacktestPeriod)}
-        className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-card-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-200"
+        className="w-full px-5 py-4 border-0 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-800 text-slate-900 dark:text-white transition-all duration-200 text-base font-medium"
       >
         {periods.map((period) => (
           <option key={period.value} value={period.value}>
@@ -42,7 +42,7 @@ export default function BacktestPeriodSelector({ value, onChange }: BacktestPeri
           </option>
         ))}
       </select>
-      <p className="text-xs text-gray-500 dark:text-gray-400">
+      <p className="text-xs text-slate-500 dark:text-gray-400">
         Select the historical period for backtesting your portfolio
       </p>
     </div>

@@ -70,8 +70,8 @@ export default function OptimizePage() {
     } else {
       const labels: Record<string, string> = {
         sharpe: 'Balanced Growth',
-        sortino: 'Downside Protection',
-        calmar: 'Recovery Strength',
+        sortino: 'Downside Protection Score',
+        calmar: 'Recovery Strength Score',
         min_variance: 'Stability First'
       };
       return labels[obj] || obj;
@@ -113,8 +113,8 @@ export default function OptimizePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 pb-24 sm:pb-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12">
         <div className="flex justify-end items-center gap-4 mb-6">
           <ProModeToggle />
           <ThemeToggle />
@@ -123,36 +123,36 @@ export default function OptimizePage() {
           <div className="flex items-center justify-between mb-6">
             <Link
               href="/"
-              className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-smooth flex items-center gap-1.5 font-medium"
+              className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-smooth flex items-center gap-1.5 font-semibold"
             >
               ← Back to Presets
             </Link>
             <div className="flex-1"></div>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">
+          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight">
             Build Your Portfolio
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-slate-600 dark:text-gray-400 max-w-2xl mx-auto">
             Create an optimized investment portfolio tailored to your risk preferences
           </p>
           {presetName && (
-            <p className="text-sm text-primary-600 dark:text-primary-400 mt-3 font-medium">
-              Based on preset: <span className="font-semibold">{presetName}</span>
+            <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-3 font-semibold">
+              Based on preset: <span className="font-bold">{presetName}</span>
             </p>
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-card shadow-xl border border-gray-100 dark:border-gray-700 p-6 sm:p-8 space-y-8 animate-fade-in">
+        <form id="optimize-form" onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
           <TickerList tickers={tickers} onChange={setTickers} />
           
           <BacktestPeriodSelector value={backtestPeriod} onChange={setBacktestPeriod} />
           
-          <div className="space-y-2">
+          <div className="space-y-4">
             <ObjectiveSelector value={objective} onChange={setObjective} />
             {presetSuggestions?.objective && (
               <div className="ml-1 -mt-1">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs">
-                  Suggested : {getObjectiveLabel(presetSuggestions.objective)}
+                <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                  💡 Suggested: {getObjectiveLabel(presetSuggestions.objective)}
                 </span>
               </div>
             )}
@@ -161,23 +161,41 @@ export default function OptimizePage() {
           <PortfolioTypeSelector value={portfolioType} onChange={setPortfolioType} />
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-card-sm p-4 animate-slide-in">
-              <p className="text-sm text-red-800 dark:text-red-200 font-medium">{error}</p>
+            <div className="bg-red-50 dark:bg-red-900/20 border-0 rounded-2xl p-4 animate-slide-in shadow-sm">
+              <p className="text-sm text-red-800 dark:text-red-200 font-semibold">{error}</p>
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading || tickers.length === 0}
-            className="w-full py-4 px-6 bg-primary-600 text-white font-semibold rounded-card-sm hover:bg-primary-700 active:bg-primary-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl disabled:hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 text-base"
-            aria-label="Optimize portfolio with selected parameters"
-            aria-busy={loading}
-          >
-            {loading ? 'Optimizing...' : 'Optimize Portfolio'}
-          </button>
-
           {loading && <Loader />}
         </form>
+      </div>
+
+      {/* Sticky Optimize Button */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-slate-200 dark:border-gray-700 shadow-lg sm:hidden z-50 p-4">
+        <button
+          type="submit"
+          form="optimize-form"
+          disabled={loading || tickers.length === 0}
+          className="w-full py-4 px-6 bg-emerald-500 text-white font-bold rounded-full hover:bg-emerald-600 active:bg-emerald-700 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl disabled:hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 text-base"
+          aria-label="Optimize portfolio with selected parameters"
+          aria-busy={loading}
+        >
+          {loading ? 'Optimizing...' : 'Optimize Portfolio'}
+        </button>
+      </div>
+
+      {/* Desktop Optimize Button */}
+      <div className="hidden sm:block max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        <button
+          type="submit"
+          form="optimize-form"
+          disabled={loading || tickers.length === 0}
+          className="w-full py-5 px-8 bg-emerald-500 text-white font-bold rounded-full hover:bg-emerald-600 active:bg-emerald-700 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl disabled:hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 text-lg"
+          aria-label="Optimize portfolio with selected parameters"
+          aria-busy={loading}
+        >
+          {loading ? 'Optimizing...' : 'Optimize Portfolio'}
+        </button>
       </div>
     </div>
   );

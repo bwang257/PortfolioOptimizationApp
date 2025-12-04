@@ -43,7 +43,7 @@ export default function PortfolioCompositionChart({ weights }: PortfolioComposit
     .map(([ticker, weight]) => ({
       name: ticker,
       value: Math.abs(weight * 100), // Convert to percentage and use absolute value
-      sign: weight >= 0 ? (isProMode ? 'Long' : 'Buy') : (isProMode ? 'Short' : 'Sell'),
+      sign: weight >= 0 ? (isProMode ? 'Long' : 'Buy') : (isProMode ? 'Short' : 'Bet Against'),
     }))
     .filter(item => item.value > 0.01) // Filter out very small weights
     .sort((a, b) => b.value - a.value);

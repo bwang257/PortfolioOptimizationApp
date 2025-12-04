@@ -198,7 +198,7 @@ class PortfolioOptimizer:
         for attempt in range(num_restarts):
             if attempt == 0:
                 # First attempt: equal weights
-        x0 = np.ones(self.n_assets) / self.n_assets
+                x0 = np.ones(self.n_assets) / self.n_assets
             else:
                 # Random initial guess
                 if self.portfolio_type == "long_only":
@@ -209,12 +209,12 @@ class PortfolioOptimizer:
                     x0 = x0 / np.sum(np.abs(x0)) * 0.5  # Normalize to reasonable leverage
             
             try:
-        result = minimize(
-            fun=self._objective_function,
-            x0=x0,
-            method='SLSQP',
-            bounds=self._bounds(),
-            constraints=self._constraints(),
+                result = minimize(
+                    fun=self._objective_function,
+                    x0=x0,
+                    method='SLSQP',
+                    bounds=self._bounds(),
+                    constraints=self._constraints(),
                     options={'maxiter': 2000, 'ftol': 1e-9}
                 )
                 
@@ -234,7 +234,7 @@ class PortfolioOptimizer:
                 bounds=self._bounds(),
                 constraints=self._constraints(),
                 options={'maxiter': 2000, 'ftol': 1e-9}
-        )
+            )
         
         if not best_result.success:
             raise ValueError(f"Optimization failed: {best_result.message}")
@@ -302,7 +302,7 @@ class PortfolioOptimizer:
         if result_min.success:
             min_return = float(np.dot(result_min.x, mean_returns))
         else:
-        min_return = mean_returns.min()
+            min_return = mean_returns.min()
         
         # Find maximum return portfolio (upper bound)
         def neg_return(weights):
@@ -320,7 +320,7 @@ class PortfolioOptimizer:
         if result_max.success:
             max_return = float(np.dot(result_max.x, mean_returns))
         else:
-        max_return = mean_returns.max()
+            max_return = mean_returns.max()
         
         # Always extend beyond current portfolio return if specified
         # This ensures the frontier has points beyond the current portfolio
@@ -375,7 +375,7 @@ class PortfolioOptimizer:
                     x0 = 0.8 * x0 + 0.2 * return_weights
                     x0 = x0 / x0.sum()  # Normalize
             else:
-            x0 = np.ones(self.n_assets) / self.n_assets
+                x0 = np.ones(self.n_assets) / self.n_assets
             
             try:
                 result = minimize(
@@ -394,10 +394,10 @@ class PortfolioOptimizer:
                     
                     # Validate the point
                     if portfolio_vol > 0 and np.isfinite(portfolio_return) and np.isfinite(portfolio_vol):
-                    efficient_frontier.append({
-                        'risk': portfolio_vol,
-                        'return': portfolio_return
-                    })
+                        efficient_frontier.append({
+                            'risk': portfolio_vol,
+                            'return': portfolio_return
+                        })
             except Exception as e:
                 # Skip if optimization fails for this point
                 continue

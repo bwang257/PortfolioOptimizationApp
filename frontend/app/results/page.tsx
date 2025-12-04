@@ -86,7 +86,7 @@ export default function ResultsPage() {
     if (isProMode) {
       return type === 'long_only' ? 'Long Only' : 'Long/Short';
     } else {
-      return type === 'long_only' ? 'Buy Only' : 'Buy/Sell';
+      return type === 'long_only' ? 'Buy Only' : 'Buy and Bet Against';
     }
   };
 

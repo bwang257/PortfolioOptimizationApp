@@ -145,28 +145,28 @@ export default function MetricsTable({
       simpleLabel: 'Stability Score'
     },
     { 
-      label: getMetricLabel('Sharpe Ratio', 'Balanced Return'), 
-      subtitle: getMetricSubtitle('Risk-Adjusted Return', 'Return adjusted for risk'),
+      label: getMetricLabel('Sharpe Ratio', 'Balanced Return Score'), 
+      subtitle: getMetricSubtitle('Risk-Adjusted Return', 'A score above 1.0 indicates excellent returns relative to risk.'),
       value: sharpe_ratio?.toFixed(2) || 'N/A', 
       color: 'primary',
       proLabel: 'Sharpe Ratio',
-      simpleLabel: 'Balanced Return'
+      simpleLabel: 'Balanced Return Score'
     },
     { 
-      label: getMetricLabel('Sortino Ratio', 'Downside Protection'), 
+      label: getMetricLabel('Sortino Ratio', 'Downside Protection Score'), 
       subtitle: getMetricSubtitle('Downside Risk-Adjusted Return', 'How well your portfolio handles losses'),
       value: sortino_ratio?.toFixed(2) || 'N/A', 
       color: 'primary',
       proLabel: 'Sortino Ratio',
-      simpleLabel: 'Downside Protection'
+      simpleLabel: 'Downside Protection Score'
     },
     { 
-      label: getMetricLabel('Calmar Ratio', 'Recovery Strength'), 
+      label: getMetricLabel('Calmar Ratio', 'Recovery Strength Score'), 
       subtitle: getMetricSubtitle('Return vs. Worst Drawdown', 'How quickly your portfolio recovers from losses'),
       value: calmar_ratio?.toFixed(2) || 'N/A', 
       color: 'primary',
       proLabel: 'Calmar Ratio',
-      simpleLabel: 'Recovery Strength'
+      simpleLabel: 'Recovery Strength Score'
     },
     { 
       label: getMetricLabel('Max Drawdown', 'Worst Decline'), 
@@ -192,7 +192,7 @@ export default function MetricsTable({
   // Render tooltip in a portal to ensure it's always at the document body level
   const tooltipContent = (openTooltip || clickedTooltip) && tooltipPosition ? (
     <div 
-      className="w-64 p-3 bg-gray-900 dark:bg-gray-800 text-white dark:text-gray-100 text-xs rounded-lg opacity-100 transition-opacity duration-200 pointer-events-auto shadow-lg border border-gray-700 dark:border-gray-600"
+      className="w-64 p-3 bg-white dark:bg-gray-800 text-slate-900 dark:text-gray-100 text-xs rounded-lg opacity-100 transition-opacity duration-200 pointer-events-auto shadow-lg border border-slate-200 dark:border-gray-600"
       style={{
         position: 'fixed',
         top: `${tooltipPosition.top}px`,

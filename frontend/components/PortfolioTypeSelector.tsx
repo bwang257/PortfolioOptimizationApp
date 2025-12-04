@@ -30,7 +30,7 @@ export default function PortfolioTypeSelector({ value, onChange }: PortfolioType
             {isProMode ? 'Long-Only' : 'Buy Only'}
           </div>
           <div className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
-            {isProMode ? 'All weights ≥ 0, sum to 1' : 'Only buy positions, no selling'}
+            {isProMode ? 'All weights ≥ 0, sum to 1' : 'Only buy stocks, no betting against them'}
           </div>
           {value === 'long_only' && (
             <div className="absolute top-3 right-3">
@@ -54,10 +54,10 @@ export default function PortfolioTypeSelector({ value, onChange }: PortfolioType
           `}
         >
           <div className="font-bold text-slate-900 dark:text-white text-base mb-1 tracking-tight">
-            {isProMode ? 'Long/Short' : 'Buy/Sell'}
+            {isProMode ? 'Long/Short' : 'Buy and Bet Against'}
           </div>
           <div className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
-            {isProMode ? 'Weights can be negative, leverage cap: 1.5x' : 'Can buy and sell positions, leverage cap: 1.5x'}
+            {isProMode ? 'Weights can be negative, leverage cap: 1.5x' : 'Can buy and bet against stocks, leverage cap: 1.5x'}
           </div>
           {value === 'long_short' && (
             <div className="absolute top-3 right-3">
