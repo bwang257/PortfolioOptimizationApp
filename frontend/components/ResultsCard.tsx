@@ -11,6 +11,7 @@ interface Props {
   calmar_ratio: number | null;
   max_drawdown: number | null;
   total_leverage: number | null;
+  isSimpleMode?: boolean;
 }
 
 const metricTooltips: Record<string, string> = {
@@ -30,7 +31,8 @@ export default function MetricsTable({
   sortino_ratio,
   calmar_ratio,
   max_drawdown,
-  total_leverage
+  total_leverage,
+  isSimpleMode = false
 }: Props) {
   const [openTooltip, setOpenTooltip] = useState<string | null>(null);
   const [clickedTooltip, setClickedTooltip] = useState<string | null>(null);
@@ -116,17 +118,75 @@ export default function MetricsTable({
     };
   }, [openTooltip, clickedTooltip]);
 
+  // Define labels based on mode
+  const getMetricLabel = (proLabel: string, simpleLabel: string) => {
+    return isSimpleMode ? simpleLabel : proLabel;
+  };
+
+  const getMetricSubtitle = (proSubtitle: string, simpleSubtitle: string) => {
+    return isSimpleMode ? simpleSubtitle : proSubtitle;
+  };
+
   const metrics = [
-    { label: 'Expected Return', value: `${(expected_return * 100).toFixed(2)}%`, color: 'blue' },
-    { label: 'Volatility', value: `${(volatility * 100).toFixed(2)}%`, color: 'green' },
-    { label: 'Sharpe Ratio', value: sharpe_ratio?.toFixed(2) || 'N/A', color: 'purple' },
-    { label: 'Sortino Ratio', value: sortino_ratio?.toFixed(2) || 'N/A', color: 'indigo' },
-    { label: 'Calmar Ratio', value: calmar_ratio?.toFixed(2) || 'N/A', color: 'pink' },
-    { label: 'Max Drawdown', value: `${((max_drawdown || 0) * 100).toFixed(2)}%`, color: 'red' },
+    { 
+      label: getMetricLabel('Expected Return', 'Expected Return'), 
+      subtitle: getMetricSubtitle('Projected Annual Growth', 'Projected Annual Growth'),
+      value: `${(expected_return * 100).toFixed(2)}%`, 
+      color: 'primary',
+      proLabel: 'Expected Return',
+      simpleLabel: 'Expected Return'
+    },
+    { 
+      label: getMetricLabel('Volatility', 'Stability Score'), 
+      subtitle: getMetricSubtitle('Stability Score', 'How much your portfolio value fluctuates'),
+      value: `${(volatility * 100).toFixed(2)}%`, 
+      color: 'navy',
+      proLabel: 'Volatility',
+      simpleLabel: 'Stability Score'
+    },
+    { 
+      label: getMetricLabel('Sharpe Ratio', 'Balanced Return'), 
+      subtitle: getMetricSubtitle('Risk-Adjusted Return', 'Return adjusted for risk'),
+      value: sharpe_ratio?.toFixed(2) || 'N/A', 
+      color: 'primary',
+      proLabel: 'Sharpe Ratio',
+      simpleLabel: 'Balanced Return'
+    },
+    { 
+      label: getMetricLabel('Sortino Ratio', 'Downside Protection'), 
+      subtitle: getMetricSubtitle('Downside Risk-Adjusted Return', 'How well your portfolio handles losses'),
+      value: sortino_ratio?.toFixed(2) || 'N/A', 
+      color: 'primary',
+      proLabel: 'Sortino Ratio',
+      simpleLabel: 'Downside Protection'
+    },
+    { 
+      label: getMetricLabel('Calmar Ratio', 'Recovery Strength'), 
+      subtitle: getMetricSubtitle('Return vs. Worst Drawdown', 'How quickly your portfolio recovers from losses'),
+      value: calmar_ratio?.toFixed(2) || 'N/A', 
+      color: 'primary',
+      proLabel: 'Calmar Ratio',
+      simpleLabel: 'Recovery Strength'
+    },
+    { 
+      label: getMetricLabel('Max Drawdown', 'Worst Decline'), 
+      subtitle: getMetricSubtitle('Largest Peak-to-Trough Decline', 'Biggest drop in portfolio value'),
+      value: `${((max_drawdown || 0) * 100).toFixed(2)}%`, 
+      color: 'navy',
+      proLabel: 'Max Drawdown',
+      simpleLabel: 'Worst Decline'
+    },
   ];
 
   if (total_leverage) {
-    metrics.push({ label: 'Total Leverage', value: total_leverage.toFixed(2), color: 'yellow' });
+    metrics.push({ 
+      label: getMetricLabel('Total Leverage', 'Total Leverage'), 
+      subtitle: getMetricSubtitle('Sum of Absolute Positions', 'Total exposure including borrowed funds'),
+      value: total_leverage.toFixed(2), 
+      color: 'navy',
+      proLabel: 'Total Leverage',
+      simpleLabel: 'Total Leverage'
+    });
   }
 
   // Render tooltip in a portal to ensure it's always at the document body level
@@ -155,42 +215,52 @@ export default function MetricsTable({
   return (
     <>
       {typeof window !== 'undefined' && tooltipContent && createPortal(tooltipContent, document.body)}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {metrics.map((metric, index) => (
         <div 
           key={metric.label} 
-          className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden transition-smooth hover-lift cursor-default relative group"
+          className="p-6 bg-white dark:bg-gray-800 rounded-card border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-lg cursor-default relative group"
           style={{ animationDelay: `${index * 0.05}s` }}
         >
-          <div className="flex items-start justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400 break-words">
-              {metric.label}
-            </p>
-            {metricTooltips[metric.label] && (
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                {metric.label}
+              </p>
+              {metric.subtitle && (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {metric.subtitle}
+                </p>
+              )}
+            </div>
+            {metric.proLabel && metricTooltips[metric.proLabel] && (
               <div className="ml-2 flex-shrink-0">
                 <button
-                  ref={(el) => { buttonRefs.current[metric.label] = el; }}
+                  ref={(el) => { buttonRefs.current[metric.proLabel] = el; }}
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    updateTooltipPosition(metric.label);
-                    if (clickedTooltip === metric.label) {
+                    const tooltipKey = metric.proLabel;
+                    updateTooltipPosition(tooltipKey);
+                    if (clickedTooltip === tooltipKey) {
                       setClickedTooltip(null);
                       setOpenTooltip(null);
                       setTooltipPosition(null);
                     } else {
-                      setClickedTooltip(metric.label);
-                      setOpenTooltip(metric.label);
+                      setClickedTooltip(tooltipKey);
+                      setOpenTooltip(tooltipKey);
                     }
                   }}
                   onMouseEnter={() => {
-                    if (clickedTooltip !== metric.label) {
-                      updateTooltipPosition(metric.label);
-                      setOpenTooltip(metric.label);
+                    const tooltipKey = metric.proLabel;
+                    if (clickedTooltip !== tooltipKey) {
+                      updateTooltipPosition(tooltipKey);
+                      setOpenTooltip(tooltipKey);
                     }
                   }}
                   onMouseLeave={() => {
-                    if (clickedTooltip !== metric.label) {
+                    const tooltipKey = metric.proLabel;
+                    if (clickedTooltip !== tooltipKey) {
                       setOpenTooltip(null);
                       setTooltipPosition(null);
                     }
@@ -199,7 +269,7 @@ export default function MetricsTable({
                   aria-label={`Show definition for ${metric.label}`}
                 >
                   <svg 
-                    className={`w-5 h-5 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 active:text-blue-700 dark:active:text-blue-300 cursor-pointer transition-all duration-200 ${(openTooltip === metric.label || clickedTooltip === metric.label) ? 'text-blue-600 dark:text-blue-400 scale-110' : ''}`}
+                    className={`w-4 h-4 text-gray-400 dark:text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 active:text-primary-700 dark:active:text-primary-300 cursor-pointer transition-all duration-200 ${(openTooltip === metric.proLabel || clickedTooltip === metric.proLabel) ? 'text-primary-600 dark:text-primary-400 scale-110' : ''}`}
                     fill="currentColor" 
                     viewBox="0 0 20 20"
                   >
@@ -209,7 +279,7 @@ export default function MetricsTable({
               </div>
             )}
           </div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white break-words">
+          <p className="text-3xl font-bold text-gray-900 dark:text-white break-words">
             {metric.value}
           </p>
         </div>

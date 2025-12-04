@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceDot, Area, AreaChart } from 'recharts';
 
 interface EfficientFrontierPoint {
@@ -18,6 +19,22 @@ export default function EfficientFrontierChart({
   currentRisk, 
   currentReturn 
 }: EfficientFrontierChartProps) {
+  const [isDark, setIsDark] = useState(false);
+
+  // Detect dark mode
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    return () => observer.disconnect();
+  }, []);
+
   // Sort frontier points by risk for proper line rendering
   const sortedFrontier = [...efficientFrontier].sort((a, b) => a.risk - b.risk);
   
@@ -174,8 +191,8 @@ export default function EfficientFrontierChart({
           >
             <defs>
               <linearGradient id="frontierGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.05}/>
+                <stop offset="5%" stopColor="#38915a" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#38915a" stopOpacity={0.05}/>
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
@@ -200,13 +217,14 @@ export default function EfficientFrontierChart({
               tickFormatter={(value) => Math.round(value).toString()}
             />
             <Tooltip 
-              cursor={{ stroke: '#3B82F6', strokeWidth: 1, strokeDasharray: '3 3' }}
+              cursor={{ stroke: '#38915a', strokeWidth: 1, strokeDasharray: '3 3' }}
               contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.98)', 
-                border: '1px solid #e5e7eb',
+                backgroundColor: isDark ? 'rgba(31, 41, 55, 0.98)' : 'rgba(255, 255, 255, 0.98)', 
+                border: isDark ? '1px solid #4b5563' : '1px solid #e5e7eb',
                 borderRadius: '8px',
                 padding: '12px',
-                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                color: isDark ? '#f3f4f6' : '#111827'
               }}
               formatter={(value: any) => [`${parseFloat(value).toFixed(2)}%`, 'Expected Return']}
               labelFormatter={(label) => `Risk (Volatility): ${Math.round(parseFloat(label))}%`}
@@ -215,7 +233,7 @@ export default function EfficientFrontierChart({
             <Area
               type="monotone"
               dataKey="return"
-              stroke="#3B82F6"
+              stroke="#38915a"
               strokeWidth={3}
               fill="url(#frontierGradient)"
               name="Efficient Frontier"
@@ -224,8 +242,8 @@ export default function EfficientFrontierChart({
               x={currentPoint.risk}
               y={currentPoint.return}
               r={6}
-              fill="#EF4444"
-              stroke="#DC2626"
+              fill="#627d98"
+              stroke="#486581"
               strokeWidth={2}
               isFront={true}
             />
@@ -234,11 +252,11 @@ export default function EfficientFrontierChart({
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-4 text-xs sm:text-sm">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-2 bg-blue-500 rounded"></div>
+          <div className="w-4 h-2 bg-primary-500 rounded"></div>
           <span className="text-gray-600 dark:text-gray-400">Efficient Frontier</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-red-600"></div>
+          <div className="w-3 h-3 rounded-full bg-navy-500 border-2 border-navy-600"></div>
           <span className="text-gray-600 dark:text-gray-400">Current Portfolio</span>
         </div>
       </div>

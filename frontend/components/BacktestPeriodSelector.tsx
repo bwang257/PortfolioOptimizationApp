@@ -34,7 +34,7 @@ export default function BacktestPeriodSelector({ value, onChange }: BacktestPeri
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as BacktestPeriod)}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-smooth"
+        className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-card-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-200"
       >
         {periods.map((period) => (
           <option key={period.value} value={period.value}>

@@ -1,6 +1,7 @@
 'use client';
 
 import { PortfolioPreset } from '@/lib/portfolioPresets';
+import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 
 interface PortfolioPresetCardProps {
   preset: PortfolioPreset;
@@ -20,18 +21,29 @@ const categoryColors: Record<string, string> = {
 };
 
 export default function PortfolioPresetCard({ preset, isSelected, onClick }: PortfolioPresetCardProps) {
+  const { isProMode } = useUserPreferences();
   const categoryColor = categoryColors[preset.category] || categoryColors['Diversified'];
   const sampleTickers = preset.tickers.slice(0, 4).join(', ');
   const remainingCount = preset.tickers.length > 4 ? preset.tickers.length - 4 : 0;
+
+  // Calculate risk level based on suggested objective
+  const getRiskLevel = () => {
+    if (preset.suggested_objective === 'min_variance') return { label: 'Low', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' };
+    if (preset.suggested_objective === 'sharpe') return { label: 'Moderate', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' };
+    if (preset.suggested_objective === 'sortino' || preset.suggested_objective === 'calmar') return { label: 'Moderate-High', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' };
+    return { label: 'Moderate', color: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' };
+  };
+
+  const riskLevel = getRiskLevel();
 
   return (
     <div
       onClick={onClick}
       className={`
-        relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
+        relative p-5 sm:p-6 rounded-card border-2 cursor-pointer transition-all duration-200
         ${isSelected 
-          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg scale-[1.02]' 
-          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md'
+          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-xl scale-[1.01]' 
+          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-lg'
         }
       `}
     >
@@ -46,7 +58,7 @@ export default function PortfolioPresetCard({ preset, isSelected, onClick }: Por
         </div>
         {isSelected && (
           <div className="ml-2 flex-shrink-0">
-            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-6 h-6 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
           </div>
@@ -60,11 +72,16 @@ export default function PortfolioPresetCard({ preset, isSelected, onClick }: Por
         <span className="text-xs text-gray-500 dark:text-gray-400">
           {preset.tickers.length} stock{preset.tickers.length !== 1 ? 's' : ''}
         </span>
+        {isProMode && (
+          <span className={`text-xs font-medium px-2 py-1 rounded ${riskLevel.color}`}>
+            Risk: {riskLevel.label}
+          </span>
+        )}
       </div>
 
       <div className="text-sm text-gray-700 dark:text-gray-300">
         <span className="font-medium">Tickers:</span>{' '}
-        <span className="text-gray-600 dark:text-gray-400">
+        <span className={`text-gray-600 dark:text-gray-400 ${isProMode ? 'font-mono text-xs' : ''}`}>
           {sampleTickers}
           {remainingCount > 0 && ` +${remainingCount} more`}
         </span>

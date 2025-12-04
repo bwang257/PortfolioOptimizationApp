@@ -11,20 +11,24 @@ interface PriceDataPoint {
 interface PerformanceChartProps {
   priceHistory: Record<string, PriceDataPoint[]>;
   portfolioReturns?: Array<{ date: string; value: number }>;
+  benchmarkReturns?: Array<{ date: string; value: number }>;
 }
 
-export default function PerformanceChart({ priceHistory, portfolioReturns }: PerformanceChartProps) {
+export default function PerformanceChart({ priceHistory, portfolioReturns, benchmarkReturns }: PerformanceChartProps) {
   const [visibleTickers, setVisibleTickers] = useState<Set<string>>(new Set());
   const [isDark, setIsDark] = useState(false);
 
-  // Initialize visible tickers to all tickers + portfolio
+  // Initialize visible tickers to only Portfolio and Benchmark (hide individual assets by default)
   useEffect(() => {
-    const allTickers = new Set(Object.keys(priceHistory));
+    const visible = new Set<string>();
     if (portfolioReturns && portfolioReturns.length > 0) {
-      allTickers.add('Portfolio');
+      visible.add('Portfolio');
     }
-    setVisibleTickers(allTickers);
-  }, [priceHistory, portfolioReturns]);
+    if (benchmarkReturns && benchmarkReturns.length > 0) {
+      visible.add('Benchmark');
+    }
+    setVisibleTickers(visible);
+  }, [portfolioReturns, benchmarkReturns]);
 
   // Detect dark mode
   useEffect(() => {
@@ -63,11 +67,11 @@ export default function PerformanceChart({ priceHistory, portfolioReturns }: Per
   
   // Get all unique dates
   const allDates = new Set<string>();
-  Object.values(priceHistory).forEach(prices => {
-    prices.forEach(p => allDates.add(p.date));
-  });
   if (portfolioReturns) {
     portfolioReturns.forEach(p => allDates.add(p.date));
+  }
+  if (benchmarkReturns) {
+    benchmarkReturns.forEach(p => allDates.add(p.date));
   }
   
   const sortedDates = Array.from(allDates).sort();
@@ -76,22 +80,21 @@ export default function PerformanceChart({ priceHistory, portfolioReturns }: Per
   sortedDates.forEach(date => {
     const dataPoint: any = { date: formatDate(date) };
     
-    // Add price data for each ticker
-    Object.entries(priceHistory).forEach(([ticker, prices]) => {
-      const pricePoint = prices.find(p => p.date === date);
-      if (pricePoint) {
-        // Normalize to percentage change from first value
-        const firstPrice = prices[0]?.price || 1;
-        dataPoint[ticker] = parseFloat(((pricePoint.price / firstPrice - 1) * 100).toFixed(2));
-      }
-    });
-    
     // Add portfolio returns
     if (portfolioReturns) {
       const portfolioPoint = portfolioReturns.find(p => p.date === date);
       if (portfolioPoint) {
         const firstValue = portfolioReturns[0]?.value || 1;
         dataPoint['Portfolio'] = parseFloat(((portfolioPoint.value / firstValue - 1) * 100).toFixed(2));
+      }
+    }
+    
+    // Add benchmark returns
+    if (benchmarkReturns) {
+      const benchmarkPoint = benchmarkReturns.find(p => p.date === date);
+      if (benchmarkPoint) {
+        const firstValue = benchmarkReturns[0]?.value || 1;
+        dataPoint['Benchmark'] = parseFloat(((benchmarkPoint.value / firstValue - 1) * 100).toFixed(2));
       }
     }
     
@@ -114,25 +117,28 @@ export default function PerformanceChart({ priceHistory, portfolioReturns }: Per
   const yAxisDomain = [minValue - padding, maxValue + padding];
   
   const colors = [
-    '#3B82F6', // blue
-    '#10B981', // green
-    '#F59E0B', // amber
-    '#EF4444', // red
-    '#8B5CF6', // purple
-    '#EC4899', // pink
-    '#06B6D4', // cyan
-    '#F97316', // orange
+    '#38915a', // primary green
+    '#627d98', // navy
+    '#8fcea5', // light green
+    '#486581', // dark navy
+    '#5cb078', // medium green
+    '#334e68', // darker navy
+    '#bce4ca', // very light green
+    '#243b53', // darkest navy
   ];
   
-  const tickers = Object.keys(priceHistory);
   const hasPortfolio = portfolioReturns && portfolioReturns.length > 0;
+  const hasBenchmark = benchmarkReturns && benchmarkReturns.length > 0;
   
-  // Get all available tickers (including hidden ones)
-  const allAvailableTickers = new Set(tickers);
+  // Get all available series (Portfolio and Benchmark only - individual assets are hidden by default)
+  const allAvailableSeries = new Set<string>();
   if (hasPortfolio) {
-    allAvailableTickers.add('Portfolio');
+    allAvailableSeries.add('Portfolio');
   }
-  const hiddenTickers = Array.from(allAvailableTickers).filter(t => !visibleTickers.has(t));
+  if (hasBenchmark) {
+    allAvailableSeries.add('Benchmark');
+  }
+  const hiddenSeries = Array.from(allAvailableSeries).filter(t => !visibleTickers.has(t));
   
   return (
     <div className="w-full overflow-hidden">
@@ -140,21 +146,18 @@ export default function PerformanceChart({ priceHistory, portfolioReturns }: Per
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           Performance Over Time
         </h3>
-        <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-          <span>Click legend items to show/hide</span>
-        </div>
       </div>
-      {hiddenTickers.length > 0 && (
-        <div className="mb-3 flex flex-wrap items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Hidden:</span>
-          {hiddenTickers.map(ticker => (
+      {hiddenSeries.length > 0 && (
+        <div className="mb-3 flex flex-wrap items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-card-sm">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Show:</span>
+          {hiddenSeries.map(series => (
             <button
-              key={ticker}
-              onClick={() => toggleTicker(ticker)}
+              key={series}
+              onClick={() => toggleTicker(series)}
               className="px-3 py-1.5 text-xs font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center gap-1.5 shadow-sm"
             >
-              <span>{ticker === 'Portfolio' ? 'Optimized Portfolio' : ticker}</span>
-              <span className="text-blue-600 dark:text-blue-400">+</span>
+              <span>{series === 'Portfolio' ? 'Optimized Portfolio' : series === 'Benchmark' ? 'S&P 500 (SPY)' : series}</span>
+              <span className="text-primary-600 dark:text-primary-400">+</span>
             </button>
           ))}
         </div>
@@ -179,15 +182,16 @@ export default function PerformanceChart({ priceHistory, portfolioReturns }: Per
             />
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.98)', 
-                border: '1px solid #e5e7eb',
+                backgroundColor: isDark ? 'rgba(31, 41, 55, 0.98)' : 'rgba(255, 255, 255, 0.98)', 
+                border: isDark ? '1px solid #4b5563' : '1px solid #e5e7eb',
                 borderRadius: '8px',
                 padding: '12px',
-                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                color: isDark ? '#f3f4f6' : '#111827'
               }}
               formatter={(value: any, name: string) => [
                 `${parseFloat(value).toFixed(2)}%`, 
-                name === 'Portfolio' ? 'Optimized Portfolio' : name
+                name === 'Portfolio' ? 'Optimized Portfolio' : name === 'Benchmark' ? 'S&P 500 (SPY)' : name
               ]}
               labelFormatter={(label) => `Date: ${formatDate(label)}`}
               separator=": "
@@ -223,28 +227,25 @@ export default function PerformanceChart({ priceHistory, portfolioReturns }: Per
                 );
               }}
             />
-            {tickers.map((ticker, index) => {
-              if (!visibleTickers.has(ticker)) return null;
-              return (
-                <Line
-                  key={ticker}
-                  type="monotone"
-                  dataKey={ticker}
-                  stroke={colors[index % colors.length]}
-                  strokeWidth={2}
-                  dot={false}
-                  name={ticker}
-                />
-              );
-            })}
             {hasPortfolio && visibleTickers.has('Portfolio') && (
               <Line
                 type="monotone"
                 dataKey="Portfolio"
-                stroke={isDark ? '#f3f4f6' : '#1f2937'}
+                stroke="#38915a"
                 strokeWidth={3}
                 dot={false}
                 name="Optimized Portfolio"
+              />
+            )}
+            {hasBenchmark && visibleTickers.has('Benchmark') && (
+              <Line
+                type="monotone"
+                dataKey="Benchmark"
+                stroke="#9ca3af"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                dot={false}
+                name="S&P 500 (SPY)"
               />
             )}
           </LineChart>

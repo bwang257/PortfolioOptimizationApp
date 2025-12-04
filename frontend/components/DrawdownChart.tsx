@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface DrawdownChartProps {
@@ -7,6 +8,21 @@ interface DrawdownChartProps {
 }
 
 export default function DrawdownChart({ portfolioReturns }: DrawdownChartProps) {
+  const [isDark, setIsDark] = useState(false);
+
+  // Detect dark mode
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    return () => observer.disconnect();
+  }, []);
   // Helper function to format date (remove time component)
   const formatDate = (dateStr: string): string => {
     if (!dateStr) return '';
@@ -68,11 +84,12 @@ export default function DrawdownChart({ portfolioReturns }: DrawdownChartProps) 
               formatter={(value: any) => [`${parseFloat(value).toFixed(2)}%`, 'Drawdown']}
               labelFormatter={(label) => `Date: ${formatDate(label)}`}
               contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.98)', 
-                border: '1px solid #e5e7eb',
+                backgroundColor: isDark ? 'rgba(31, 41, 55, 0.98)' : 'rgba(255, 255, 255, 0.98)', 
+                border: isDark ? '1px solid #4b5563' : '1px solid #e5e7eb',
                 borderRadius: '8px',
                 padding: '12px',
-                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                color: isDark ? '#f3f4f6' : '#111827'
               }}
               separator=": "
             />

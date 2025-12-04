@@ -14,10 +14,10 @@ export default function PortfolioTypeSelector({ value, onChange }: PortfolioType
       <div className="space-y-2">
         <label
           onClick={() => onChange('long_only')}
-          className={`flex items-center p-3 border rounded-md cursor-pointer transition-smooth hover-lift ${
+          className={`flex items-center p-4 border rounded-card-sm cursor-pointer transition-all duration-200 ${
             value === 'long_only'
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
-              : 'border-gray-300 hover:border-gray-400 dark:border-gray-600 hover:shadow-sm'
+              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-md'
+              : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-sm bg-white dark:bg-gray-800'
           }`}
         >
           <input
@@ -38,10 +38,10 @@ export default function PortfolioTypeSelector({ value, onChange }: PortfolioType
         </label>
         <label
           onClick={() => onChange('long_short')}
-          className={`flex items-center p-3 border rounded-md cursor-pointer transition-smooth hover-lift ${
+          className={`flex items-center p-4 border rounded-card-sm cursor-pointer transition-all duration-200 ${
             value === 'long_short'
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
-              : 'border-gray-300 hover:border-gray-400 dark:border-gray-600 hover:shadow-sm'
+              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-md'
+              : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-sm bg-white dark:bg-gray-800'
           }`}
         >
           <input

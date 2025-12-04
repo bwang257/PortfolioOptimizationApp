@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 interface PortfolioCompositionChartProps {
@@ -7,19 +8,35 @@ interface PortfolioCompositionChartProps {
 }
 
 const COLORS = [
-  '#3B82F6', // blue
-  '#10B981', // green
-  '#F59E0B', // amber
-  '#EF4444', // red
-  '#8B5CF6', // purple
-  '#EC4899', // pink
-  '#06B6D4', // cyan
-  '#F97316', // orange
-  '#84CC16', // lime
-  '#6366F1', // indigo
+  '#38915a', // primary green
+  '#627d98', // navy
+  '#8fcea5', // light green
+  '#486581', // dark navy
+  '#5cb078', // medium green
+  '#334e68', // darker navy
+  '#bce4ca', // very light green
+  '#243b53', // darkest navy
+  '#2a7447', // darker green
+  '#102a43', // very dark navy
 ];
 
 export default function PortfolioCompositionChart({ weights }: PortfolioCompositionChartProps) {
+  const [isDark, setIsDark] = useState(false);
+
+  // Detect dark mode
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    return () => observer.disconnect();
+  }, []);
+
   const data = Object.entries(weights)
     .map(([ticker, weight]) => ({
       name: ticker,
@@ -57,12 +74,15 @@ export default function PortfolioCompositionChart({ weights }: PortfolioComposit
             </Pie>
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.98)', 
-                border: '1px solid #e5e7eb',
+                backgroundColor: isDark ? 'rgba(31, 41, 55, 0.98)' : 'rgba(255, 255, 255, 0.98)', 
+                border: isDark ? '1px solid #4b5563' : '1px solid #e5e7eb',
                 borderRadius: '8px',
                 padding: '12px',
-                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                color: isDark ? '#f3f4f6' : '#111827'
               }}
+              itemStyle={{ color: isDark ? '#f3f4f6' : '#111827' }}
+              labelStyle={{ color: isDark ? '#f3f4f6' : '#111827' }}
               formatter={(value: any) => [`${parseFloat(value).toFixed(2)}%`, 'Weight']}
               labelFormatter={(label, payload) => {
                 const entry = payload[0]?.payload;

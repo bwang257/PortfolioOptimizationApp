@@ -1,17 +1,28 @@
 'use client';
 
+import { useUserPreferences } from '@/contexts/UserPreferencesContext';
+
 interface ObjectiveSelectorProps {
   value: 'sharpe' | 'sortino' | 'calmar' | 'min_variance';
   onChange: (value: 'sharpe' | 'sortino' | 'calmar' | 'min_variance') => void;
 }
 
 export default function ObjectiveSelector({ value, onChange }: ObjectiveSelectorProps) {
-  const options = [
-    { value: 'sharpe' as const, label: 'Sharpe Ratio', description: 'Return per unit of total risk' },
-    { value: 'sortino' as const, label: 'Sortino Ratio', description: 'Return per unit of downside risk' },
-    { value: 'calmar' as const, label: 'Calmar Ratio', description: 'Return per unit of max drawdown' },
-    { value: 'min_variance' as const, label: 'Minimum Variance (Lowest Risk)', description: 'Minimize portfolio volatility' },
-  ];
+  const { isProMode } = useUserPreferences();
+
+  const options = isProMode
+    ? [
+        { value: 'sharpe' as const, label: 'Sharpe Ratio', description: 'Return per unit of total risk' },
+        { value: 'sortino' as const, label: 'Sortino Ratio', description: 'Return per unit of downside risk' },
+        { value: 'calmar' as const, label: 'Calmar Ratio', description: 'Return per unit of max drawdown' },
+        { value: 'min_variance' as const, label: 'Minimum Variance (Lowest Risk)', description: 'Minimize portfolio volatility' },
+      ]
+    : [
+        { value: 'sharpe' as const, label: 'Balanced Growth', description: 'Maximize returns while managing overall risk' },
+        { value: 'sortino' as const, label: 'Downside Protection', description: 'Focus on protecting against losses' },
+        { value: 'calmar' as const, label: 'Recovery Strength', description: 'Prioritize quick recovery from market downturns' },
+        { value: 'min_variance' as const, label: 'Stability First', description: 'Minimize price fluctuations for steady growth' },
+      ];
 
   return (
     <div className="space-y-2">
@@ -23,10 +34,10 @@ export default function ObjectiveSelector({ value, onChange }: ObjectiveSelector
           <label
             key={option.value}
             onClick={() => onChange(option.value)}
-            className={`flex items-start p-3 border rounded-md cursor-pointer transition-smooth hover-lift ${
+            className={`flex items-start p-4 border rounded-card-sm cursor-pointer transition-all duration-200 ${
               value === option.value
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
-                : 'border-gray-300 hover:border-gray-400 dark:border-gray-600 hover:shadow-sm'
+                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-md'
+                : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-sm bg-white dark:bg-gray-800'
             }`}
           >
             <input

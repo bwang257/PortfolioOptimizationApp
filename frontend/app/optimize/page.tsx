@@ -9,7 +9,9 @@ import PortfolioTypeSelector from '@/components/PortfolioTypeSelector';
 import BacktestPeriodSelector, { PERIOD_TO_DAYS, BacktestPeriod } from '@/components/BacktestPeriodSelector';
 import Loader from '@/components/Loader';
 import ThemeToggle from '@/components/ThemeToggle';
+import ProModeToggle from '@/components/ProModeToggle';
 import { optimizePortfolio, PortfolioRequest } from '@/lib/api';
+import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 
 export default function OptimizePage() {
   const [tickers, setTickers] = useState<string[]>([]);
@@ -22,6 +24,7 @@ export default function OptimizePage() {
   const [presetSuggestions, setPresetSuggestions] = useState<{objective?: string} | null>(null);
   const [isManualEntry, setIsManualEntry] = useState(false);
   const router = useRouter();
+  const { isProMode } = useUserPreferences();
 
   // Load pre-filled data from preset selection
   useEffect(() => {
@@ -56,13 +59,23 @@ export default function OptimizePage() {
   }, []);
 
   const getObjectiveLabel = (obj: string) => {
-    const labels: Record<string, string> = {
-      sharpe: 'Sharpe Ratio',
-      sortino: 'Sortino Ratio',
-      calmar: 'Calmar Ratio',
-      min_variance: 'Minimum Variance'
-    };
-    return labels[obj] || obj;
+    if (isProMode) {
+      const labels: Record<string, string> = {
+        sharpe: 'Sharpe Ratio',
+        sortino: 'Sortino Ratio',
+        calmar: 'Calmar Ratio',
+        min_variance: 'Minimum Variance'
+      };
+      return labels[obj] || obj;
+    } else {
+      const labels: Record<string, string> = {
+        sharpe: 'Balanced Growth',
+        sortino: 'Downside Protection',
+        calmar: 'Recovery Strength',
+        min_variance: 'Stability First'
+      };
+      return labels[obj] || obj;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,35 +113,36 @@ export default function OptimizePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end items-center gap-4 mb-6">
+          <ProModeToggle />
           <ThemeToggle />
         </div>
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <div className="text-center mb-10 sm:mb-12">
+          <div className="flex items-center justify-between mb-6">
             <Link
               href="/"
-              className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-smooth flex items-center gap-1"
+              className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-smooth flex items-center gap-1.5 font-medium"
             >
               ← Back to Presets
             </Link>
             <div className="flex-1"></div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Portfolio Optimizer
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">
+            Build Your Portfolio
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Optimize your stock portfolio using advanced risk-adjusted metrics
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            Create an optimized investment portfolio tailored to your risk preferences
           </p>
           {presetName && (
-            <p className="text-sm text-blue-600 dark:text-blue-400 mt-2">
-              Based on preset: <span className="font-medium">{presetName}</span>
+            <p className="text-sm text-primary-600 dark:text-primary-400 mt-3 font-medium">
+              Based on preset: <span className="font-semibold">{presetName}</span>
             </p>
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 space-y-6 animate-fade-in hover-lift">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-card shadow-xl border border-gray-100 dark:border-gray-700 p-6 sm:p-8 space-y-8 animate-fade-in">
           <TickerList tickers={tickers} onChange={setTickers} />
           
           <BacktestPeriodSelector value={backtestPeriod} onChange={setBacktestPeriod} />
@@ -147,15 +161,15 @@ export default function OptimizePage() {
           <PortfolioTypeSelector value={portfolioType} onChange={setPortfolioType} />
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4 animate-slide-in">
-              <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-card-sm p-4 animate-slide-in">
+              <p className="text-sm text-red-800 dark:text-red-200 font-medium">{error}</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading || tickers.length === 0}
-            className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 active:bg-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-smooth hover-lift shadow-md hover:shadow-lg disabled:hover:shadow-md disabled:hover:translate-y-0 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full py-4 px-6 bg-primary-600 text-white font-semibold rounded-card-sm hover:bg-primary-700 active:bg-primary-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl disabled:hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 text-base"
             aria-label="Optimize portfolio with selected parameters"
             aria-busy={loading}
           >

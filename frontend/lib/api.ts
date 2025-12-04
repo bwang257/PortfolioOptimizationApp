@@ -17,6 +17,7 @@ export interface PortfolioResponse {
   total_leverage: number | null;
   price_history?: Record<string, Array<{ date: string; price: number }>>;
   portfolio_returns?: Array<{ date: string; value: number }>;
+  benchmark_returns?: Array<{ date: string; value: number }>;
   efficient_frontier?: Array<{ risk: number; return: number; sharpe: number }>;
   rolling_metrics?: {
     sharpe_30?: Array<{ date: string; value: number }>;

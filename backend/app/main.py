@@ -144,6 +144,23 @@ async def optimize_portfolio(request: PortfolioRequest):
                     for date, price in prices[ticker].items()
                 ]
         
+        # Fetch SPY benchmark data for comparison
+        benchmark_data = None
+        try:
+            logger.info("Fetching SPY benchmark data")
+            benchmark_prices = data_loader.fetch_prices(["SPY"])
+            if "SPY" in benchmark_prices.columns:
+                benchmark_returns = data_loader.compute_returns(benchmark_prices)
+                benchmark_cumulative = (1 + benchmark_returns["SPY"]).cumprod()
+                benchmark_data = [
+                    {"date": str(date), "value": float(value)}
+                    for date, value in benchmark_cumulative.items()
+                ]
+                logger.info(f"Successfully fetched {len(benchmark_data)} days of SPY benchmark data")
+        except Exception as e:
+            logger.warning(f"Failed to fetch SPY benchmark data: {str(e)}. Continuing without benchmark.")
+            benchmark_data = None
+        
         # Calculate portfolio cumulative returns
         portfolio_cumulative = (1 + portfolio_returns).cumprod()
         portfolio_returns_data = [
@@ -255,6 +272,7 @@ async def optimize_portfolio(request: PortfolioRequest):
             total_leverage=total_leverage,
             price_history=price_history,
             portfolio_returns=portfolio_returns_data,
+            benchmark_returns=benchmark_data,
             efficient_frontier=efficient_frontier,
             rolling_metrics=rolling_metrics_data,
             risk_decomposition=risk_decomposition,

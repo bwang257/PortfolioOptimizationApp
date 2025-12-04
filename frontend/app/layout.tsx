@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { UserPreferencesProvider } from '@/contexts/UserPreferencesContext'
 
 export const metadata: Metadata = {
   title: 'Portfolio Optimizer',
@@ -33,7 +34,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="bg-gray-50 dark:bg-gray-900">{children}</body>
+      <body className="bg-gray-50 dark:bg-gray-950 antialiased">
+        <UserPreferencesProvider>
+          {children}
+        </UserPreferencesProvider>
+      </body>
     </html>
   )
 }
