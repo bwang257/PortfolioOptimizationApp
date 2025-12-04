@@ -3,22 +3,25 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PortfolioResponse } from '@/lib/api';
-import PerformanceChart from '@/components/PerformanceChart';
+import PerformanceLineChart from '@/components/PerformanceLineChart';
 import DrawdownChart from '@/components/DrawdownChart';
-import EfficientFrontierChart from '@/components/EfficientFrontierChart';
-import RollingMetricsChart from '@/components/RollingMetricsChart';
 import PortfolioCompositionChart from '@/components/PortfolioCompositionChart';
-import RiskDecomposition from '@/components/RiskDecomposition';
+import RollingVolatilityChart from '@/components/RollingVolatilityChart';
+import HoldingsList from '@/components/HoldingsList';
 import MetricsTable from '@/components/ResultsCard';
 import ThemeToggle from '@/components/ThemeToggle';
 import ProModeToggle from '@/components/ProModeToggle';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
+
+type TabType = 'Performance' | 'Drawdown' | 'Allocation' | 'Risk';
 
 export default function ResultsPage() {
   const [results, setResults] = useState<PortfolioResponse | null>(null);
   const [backtestPeriod, setBacktestPeriod] = useState<string>('1Y');
   const [optimizationObjective, setOptimizationObjective] = useState<string>('');
   const [portfolioType, setPortfolioType] = useState<string>('');
+  const [displayReturn, setDisplayReturn] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<TabType>('Performance');
   const router = useRouter();
   const { isProMode } = useUserPreferences();
 
@@ -71,8 +74,8 @@ export default function ResultsPage() {
     } else {
       const labels: Record<string, string> = {
         sharpe: 'Balanced Growth',
-        sortino: 'Downside Protection',
-        calmar: 'Recovery Strength',
+        sortino: 'Downside Protection Score',
+        calmar: 'Recovery Strength Score',
         min_variance: 'Stability First'
       };
       return labels[obj] || obj;
@@ -80,11 +83,21 @@ export default function ResultsPage() {
   };
 
   const getPortfolioTypeLabel = (type: string) => {
-    return type === 'long_only' ? 'Long Only' : 'Long/Short';
+    if (isProMode) {
+      return type === 'long_only' ? 'Long Only' : 'Long/Short';
+    } else {
+      return type === 'long_only' ? 'Buy Only' : 'Buy/Sell';
+    }
   };
 
+  // Calculate the return to display (use hovered value or default to expected return)
+  // expected_return is a decimal (e.g., 0.15 for 15%), so multiply by 100 for display
+  const returnToDisplay = displayReturn !== null 
+    ? displayReturn 
+    : (results.expected_return * 100);
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-end items-center gap-4 mb-6">
           <ProModeToggle />
@@ -92,66 +105,100 @@ export default function ResultsPage() {
         </div>
         
         {/* Header Section */}
-        <div className="mb-8 sm:mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
+              Your Portfolio
+            </h1>
+            <p className="text-base text-slate-600 dark:text-gray-400">
+              Based on {backtestPeriod} of historical data
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              sessionStorage.removeItem('portfolioResults');
+              sessionStorage.removeItem('backtestPeriod');
+              sessionStorage.removeItem('optimizationObjective');
+              sessionStorage.removeItem('portfolioType');
+              router.push('/');
+            }}
+            className="px-6 py-3 bg-emerald-500 text-white font-bold rounded-full hover:bg-emerald-600 active:bg-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 whitespace-nowrap"
+            aria-label="Start a new portfolio optimization"
+          >
+            New Optimization
+          </button>
+        </div>
+
+        {/* Unified Dashboard Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-md p-6 sm:p-8 mb-8">
+          {/* Header with Expected Return and Tabs */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                Your Portfolio Recommendation
-              </h1>
-              <p className="text-base text-gray-700 dark:text-gray-300">
-                Based on {backtestPeriod} of historical data
-              </p>
+            {/* Left Side: Expected Return */}
+            <div className="flex-shrink-0">
+              <div className="text-sm font-semibold text-slate-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
+                Expected Annual Return
+              </div>
+              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white tracking-tight">
+                {returnToDisplay.toFixed(1)}%
+              </div>
             </div>
-            <button
-              onClick={() => {
-                // Clear sessionStorage when navigating to start page
-                sessionStorage.removeItem('portfolioResults');
-                sessionStorage.removeItem('backtestPeriod');
-                sessionStorage.removeItem('optimizationObjective');
-                sessionStorage.removeItem('portfolioType');
-                router.push('/');
+
+            {/* Right Side: Segmented Control */}
+            <div className="flex-shrink-0">
+              <div className="inline-flex bg-slate-100 dark:bg-gray-700 p-1 rounded-full shadow-sm flex-wrap gap-1">
+                {(['Performance', 'Drawdown', 'Risk', 'Allocation'] as TabType[]).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`
+                      px-3 sm:px-4 py-2 rounded-full font-semibold text-xs sm:text-sm transition-all duration-200
+                      ${activeTab === tab
+                        ? 'bg-white dark:bg-gray-600 text-emerald-600 dark:text-emerald-400 shadow-md'
+                        : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-200'
+                      }
+                    `}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Chart Section */}
+          <div className="relative" style={{ minHeight: '400px' }}>
+            <div
+              key={activeTab}
+              className="animate-fade-in"
+              style={{
+                animation: 'fadeIn 0.3s ease-in-out'
               }}
-              className="px-6 py-3 bg-primary-600 text-white font-semibold rounded-card-sm hover:bg-primary-700 active:bg-primary-800 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 whitespace-nowrap"
-              aria-label="Start a new portfolio optimization"
             >
-              New Optimization
-            </button>
-          </div>
-        </div>
-
-        {/* Optimization Summary */}
-        <div className="bg-white dark:bg-gray-800 rounded-card shadow-xl border border-gray-100 dark:border-gray-700 p-6 sm:p-8 mb-8 card-enter">
-          <h2 className="text-xl sm:text-2xl font-bold mb-6 text-gray-900 dark:text-white">Optimization Summary</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-card-sm border border-gray-100 dark:border-gray-600">
-              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide font-medium">Optimization Objective</div>
-              <div className="text-lg font-bold text-gray-900 dark:text-white">
-                {optimizationObjective ? getObjectiveLabel(optimizationObjective) : 'N/A'}
-              </div>
-            </div>
-            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-card-sm border border-gray-100 dark:border-gray-600">
-              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide font-medium">Portfolio Type</div>
-              <div className="text-lg font-bold text-gray-900 dark:text-white">
-                {portfolioType ? getPortfolioTypeLabel(portfolioType) : 'N/A'}
-              </div>
-            </div>
-            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-card-sm border border-gray-100 dark:border-gray-600">
-              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide font-medium">Backtest Period</div>
-              <div className="text-lg font-bold text-gray-900 dark:text-white">
-                {backtestPeriod}
-              </div>
-            </div>
-          </div>
-          <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              <span className="font-semibold text-gray-900 dark:text-white">Portfolio Composition:</span> {tickers.length} stock{tickers.length !== 1 ? 's' : ''} ({tickers.join(', ')})
+              {activeTab === 'Performance' && results.portfolio_returns && (
+                <PerformanceLineChart
+                  portfolioReturns={results.portfolio_returns}
+                  benchmarkReturns={results.benchmark_returns}
+                />
+              )}
+              {activeTab === 'Drawdown' && results.portfolio_returns && (
+                <DrawdownChart portfolioReturns={results.portfolio_returns} />
+              )}
+              {activeTab === 'Allocation' && (
+                <PortfolioCompositionChart weights={results.weights} />
+              )}
+              {activeTab === 'Risk' && results.rolling_metrics && (
+                <RollingVolatilityChart rollingMetrics={results.rolling_metrics} />
+              )}
             </div>
           </div>
         </div>
 
-        {/* Key Metrics */}
-        <div className="bg-white dark:bg-gray-800 rounded-card shadow-xl border border-gray-100 dark:border-gray-700 p-6 sm:p-8 mb-8 card-enter">
-          <h2 className="text-xl sm:text-2xl font-bold mb-6 text-gray-900 dark:text-white">Performance Metrics</h2>
+        {/* Holdings List */}
+        <HoldingsList weights={results.weights} />
+
+        {/* Full Metrics Table */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 sm:p-8 mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold mb-6 text-slate-900 dark:text-white tracking-tight">All Performance Metrics</h2>
           <MetricsTable
             expected_return={results.expected_return}
             volatility={results.volatility}
@@ -163,54 +210,6 @@ export default function ResultsPage() {
             isSimpleMode={!isProMode}
           />
         </div>
-
-        {/* Portfolio Composition */}
-        <div className="bg-white dark:bg-gray-800 rounded-card shadow-xl border border-gray-100 dark:border-gray-700 p-6 sm:p-8 mb-8 card-enter" style={{ animationDelay: '0.1s' }}>
-          <PortfolioCompositionChart weights={results.weights} />
-        </div>
-
-        {/* Performance Charts */}
-        {results.price_history && (
-          <div className="bg-white dark:bg-gray-800 rounded-card shadow-xl border border-gray-100 dark:border-gray-700 p-6 sm:p-8 mb-8 card-enter chart-container-enter" style={{ animationDelay: '0.2s' }}>
-            <PerformanceChart 
-              priceHistory={results.price_history} 
-              portfolioReturns={results.portfolio_returns}
-              benchmarkReturns={results.benchmark_returns}
-            />
-          </div>
-        )}
-
-        {/* Drawdown Chart */}
-        {results.portfolio_returns && (
-          <div className="bg-white dark:bg-gray-800 rounded-card shadow-xl border border-gray-100 dark:border-gray-700 p-6 sm:p-8 mb-8 card-enter chart-container-enter" style={{ animationDelay: '0.3s' }}>
-            <DrawdownChart portfolioReturns={results.portfolio_returns} />
-          </div>
-        )}
-
-        {/* Efficient Frontier */}
-        {results.efficient_frontier && (
-          <div className="bg-white dark:bg-gray-800 rounded-card shadow-xl border border-gray-100 dark:border-gray-700 p-6 sm:p-8 mb-8 card-enter chart-container-enter" style={{ animationDelay: '0.4s' }}>
-            <EfficientFrontierChart
-              efficientFrontier={results.efficient_frontier}
-              currentRisk={results.volatility_theoretical ?? results.volatility}
-              currentReturn={results.expected_return_theoretical ?? results.expected_return}
-            />
-          </div>
-        )}
-
-        {/* Rolling Metrics */}
-        {results.rolling_metrics && (
-          <div className="bg-white dark:bg-gray-800 rounded-card shadow-xl border border-gray-100 dark:border-gray-700 p-6 sm:p-8 mb-8 card-enter chart-container-enter" style={{ animationDelay: '0.5s' }}>
-            <RollingMetricsChart rollingMetrics={results.rolling_metrics} />
-          </div>
-        )}
-
-        {/* Risk Decomposition */}
-        {results.risk_decomposition && (
-          <div className="bg-white dark:bg-gray-800 rounded-card shadow-xl border border-gray-100 dark:border-gray-700 p-6 sm:p-8 mb-8 card-enter chart-container-enter" style={{ animationDelay: '0.7s' }}>
-            <RiskDecomposition riskDecomposition={results.risk_decomposition} />
-          </div>
-        )}
       </div>
     </div>
   );

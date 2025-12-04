@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 
 interface PortfolioCompositionChartProps {
   weights: Record<string, number>;
@@ -22,6 +23,7 @@ const COLORS = [
 
 export default function PortfolioCompositionChart({ weights }: PortfolioCompositionChartProps) {
   const [isDark, setIsDark] = useState(false);
+  const { isProMode } = useUserPreferences();
 
   // Detect dark mode
   useEffect(() => {
@@ -41,7 +43,7 @@ export default function PortfolioCompositionChart({ weights }: PortfolioComposit
     .map(([ticker, weight]) => ({
       name: ticker,
       value: Math.abs(weight * 100), // Convert to percentage and use absolute value
-      sign: weight >= 0 ? 'Long' : 'Short',
+      sign: weight >= 0 ? (isProMode ? 'Long' : 'Buy') : (isProMode ? 'Short' : 'Sell'),
     }))
     .filter(item => item.value > 0.01) // Filter out very small weights
     .sort((a, b) => b.value - a.value);
@@ -52,9 +54,6 @@ export default function PortfolioCompositionChart({ weights }: PortfolioComposit
   
   return (
     <div className="w-full overflow-hidden">
-      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-        Portfolio Composition
-      </h3>
       <div className="w-full" style={{ height: '400px', minHeight: 0 }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>

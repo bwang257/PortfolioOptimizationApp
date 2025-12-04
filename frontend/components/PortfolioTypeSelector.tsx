@@ -1,65 +1,74 @@
 'use client';
 
+import { useUserPreferences } from '@/contexts/UserPreferencesContext';
+
 interface PortfolioTypeSelectorProps {
   value: 'long_only' | 'long_short';
   onChange: (value: 'long_only' | 'long_short') => void;
 }
 
 export default function PortfolioTypeSelector({ value, onChange }: PortfolioTypeSelectorProps) {
+  const { isProMode } = useUserPreferences();
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+    <div className="space-y-3">
+      <label className="block text-sm font-semibold text-slate-900 dark:text-white tracking-tight">
         Portfolio Type
       </label>
-      <div className="space-y-2">
-        <label
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          type="button"
           onClick={() => onChange('long_only')}
-          className={`flex items-center p-4 border rounded-card-sm cursor-pointer transition-all duration-200 ${
-            value === 'long_only'
-              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-md'
-              : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-sm bg-white dark:bg-gray-800'
-          }`}
+          className={`
+            relative p-6 rounded-2xl cursor-pointer transition-all duration-300 text-left
+            ${value === 'long_only'
+              ? 'bg-emerald-50 dark:bg-emerald-900/20 ring-2 ring-emerald-500 shadow-md scale-[1.02]'
+              : 'bg-white dark:bg-gray-800 hover:shadow-md shadow-sm'
+            }
+          `}
         >
-          <input
-            type="radio"
-            name="portfolio_type"
-            value="long_only"
-            checked={value === 'long_only'}
-            onChange={() => onChange('long_only')}
-            onClick={(e) => e.stopPropagation()}
-            className="mr-3"
-          />
-          <div>
-            <div className="font-medium text-gray-900 dark:text-gray-100">Long-Only</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              All weights ≥ 0, sum to 1
-            </div>
+          <div className="font-bold text-slate-900 dark:text-white text-base mb-1 tracking-tight">
+            {isProMode ? 'Long-Only' : 'Buy Only'}
           </div>
-        </label>
-        <label
+          <div className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
+            {isProMode ? 'All weights ≥ 0, sum to 1' : 'Only buy positions, no selling'}
+          </div>
+          {value === 'long_only' && (
+            <div className="absolute top-3 right-3">
+              <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          )}
+        </button>
+        <button
+          type="button"
           onClick={() => onChange('long_short')}
-          className={`flex items-center p-4 border rounded-card-sm cursor-pointer transition-all duration-200 ${
-            value === 'long_short'
-              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-md'
-              : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-sm bg-white dark:bg-gray-800'
-          }`}
+          className={`
+            relative p-6 rounded-2xl cursor-pointer transition-all duration-300 text-left
+            ${value === 'long_short'
+              ? 'bg-emerald-50 dark:bg-emerald-900/20 ring-2 ring-emerald-500 shadow-md scale-[1.02]'
+              : 'bg-white dark:bg-gray-800 hover:shadow-md shadow-sm'
+            }
+          `}
         >
-          <input
-            type="radio"
-            name="portfolio_type"
-            value="long_short"
-            checked={value === 'long_short'}
-            onChange={() => onChange('long_short')}
-            onClick={(e) => e.stopPropagation()}
-            className="mr-3"
-          />
-          <div>
-            <div className="font-medium text-gray-900 dark:text-gray-100">Long/Short</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Weights can be negative, leverage cap: 1.5x
-            </div>
+          <div className="font-bold text-slate-900 dark:text-white text-base mb-1 tracking-tight">
+            {isProMode ? 'Long/Short' : 'Buy/Sell'}
           </div>
-        </label>
+          <div className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
+            {isProMode ? 'Weights can be negative, leverage cap: 1.5x' : 'Can buy and sell positions, leverage cap: 1.5x'}
+          </div>
+          {value === 'long_short' && (
+            <div className="absolute top-3 right-3">
+              <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          )}
+        </button>
       </div>
     </div>
   );
