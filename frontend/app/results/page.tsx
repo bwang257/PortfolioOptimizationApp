@@ -10,6 +10,8 @@ import CompactHoldingsList from '@/components/CompactHoldingsList';
 import MetricsTable from '@/components/ResultsCard';
 import ThemeToggle from '@/components/ThemeToggle';
 import ProModeToggle from '@/components/ProModeToggle';
+import LearningMoment from '@/components/LearningMoment';
+import RegulatoryDisclaimer from '@/components/RegulatoryDisclaimer';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 import { BacktestPeriod } from '@/components/BacktestPeriodSelector';
 
@@ -97,6 +99,8 @@ export default function ResultsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-6 px-4 sm:px-6 lg:px-8">
+      {results && <LearningMoment portfolioData={results} onDismiss={() => {}} />}
+      <RegulatoryDisclaimer variant="banner" />
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -154,9 +158,9 @@ export default function ResultsPage() {
           </div>
 
           {/* Allocation Widget - Span 1 column */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4" data-tour="why-button">
             <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Asset Allocation</h2>
-            <CompactAllocationChart weights={results.weights} />
+            <CompactAllocationChart weights={results.weights} portfolioData={results} />
           </div>
 
           {/* Risk Analysis Widget - Span 1 column */}

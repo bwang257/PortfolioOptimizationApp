@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 
 interface CompactPerformanceChartProps {
   portfolioReturns?: Array<{ date: string; value: number }>;
@@ -17,6 +18,7 @@ export default function CompactPerformanceChart({
   currentValue 
 }: CompactPerformanceChartProps) {
   const [isDark, setIsDark] = useState(false);
+  const { isProMode } = useUserPreferences();
 
   useEffect(() => {
     const checkDarkMode = () => {
@@ -114,61 +116,125 @@ export default function CompactPerformanceChart({
       </div>
       
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData} margin={{ top: 5, right: 5, left: 40, bottom: 40 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#374151" : "#e5e7eb"} opacity={0.5} />
-          <XAxis 
-            dataKey="date" 
-            tick={{ fontSize: 10, fill: isDark ? '#9ca3af' : '#6b7280' }}
-            angle={-45}
-            textAnchor="end"
-            height={40}
-            interval="preserveStartEnd"
-          />
-          <YAxis 
-            tick={{ fontSize: 10, fill: isDark ? '#9ca3af' : '#6b7280' }}
-            label={{ value: 'Return (%)', angle: -90, position: 'insideLeft', offset: 0, style: { fontSize: '10px' } }}
-            tickFormatter={(value) => `${value.toFixed(1)}%`}
-          />
-          <Tooltip 
-            contentStyle={{ 
-              backgroundColor: isDark ? 'rgba(31, 41, 55, 0.98)' : 'rgba(255, 255, 255, 0.98)', 
-              border: isDark ? '1px solid #4b5563' : '1px solid #e5e7eb',
-              borderRadius: '6px',
-              padding: '8px',
-              fontSize: '11px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-              color: isDark ? '#f3f4f6' : '#111827'
-            }}
-            formatter={(value: any, name: string) => {
-              const label = name === 'Portfolio' ? 'You' : name === 'Benchmark' ? 'Market' : name;
-              return [`${parseFloat(value).toFixed(2)}%`, label];
-            }}
-            labelFormatter={(label) => formatDate(label)}
-            separator=": "
-          />
-          {portfolioReturns && (
-            <Line
-              type="monotone"
-              dataKey="Portfolio"
-              stroke={isDark ? "#10b981" : "#059669"}
-              strokeWidth={2}
-              dot={false}
-              name="Portfolio"
+        {isProMode ? (
+          <LineChart data={chartData} margin={{ top: 5, right: 5, left: 40, bottom: 40 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#374151" : "#e5e7eb"} opacity={0.5} />
+            <XAxis 
+              dataKey="date" 
+              tick={{ fontSize: 10, fill: isDark ? '#9ca3af' : '#6b7280' }}
+              angle={-45}
+              textAnchor="end"
+              height={40}
+              interval="preserveStartEnd"
             />
-          )}
-          {benchmarkReturns && (
-            <Line
-              type="monotone"
-              dataKey="Benchmark"
-              stroke={isDark ? "#6b7280" : "#4b5563"}
-              strokeWidth={2}
-              strokeDasharray="5 5"
-              strokeOpacity={0.8}
-              dot={false}
-              name="Benchmark"
+            <YAxis 
+              tick={{ fontSize: 10, fill: isDark ? '#9ca3af' : '#6b7280' }}
+              label={{ value: 'Return (%)', angle: -90, position: 'insideLeft', offset: 0, style: { fontSize: '10px' } }}
+              tickFormatter={(value) => `${value.toFixed(1)}%`}
             />
-          )}
-        </LineChart>
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: isDark ? 'rgba(31, 41, 55, 0.98)' : 'rgba(255, 255, 255, 0.98)', 
+                border: isDark ? '1px solid #4b5563' : '1px solid #e5e7eb',
+                borderRadius: '6px',
+                padding: '8px',
+                fontSize: '11px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                color: isDark ? '#f3f4f6' : '#111827'
+              }}
+              formatter={(value: any, name: string) => {
+                const label = name === 'Portfolio' ? 'You' : name === 'Benchmark' ? 'Market' : name;
+                return [`${parseFloat(value).toFixed(2)}%`, label];
+              }}
+              labelFormatter={(label) => formatDate(label)}
+              separator=": "
+            />
+            {portfolioReturns && (
+              <Line
+                type="monotone"
+                dataKey="Portfolio"
+                stroke={isDark ? "#10b981" : "#059669"}
+                strokeWidth={2}
+                dot={false}
+                name="Portfolio"
+              />
+            )}
+            {benchmarkReturns && (
+              <Line
+                type="monotone"
+                dataKey="Benchmark"
+                stroke={isDark ? "#6b7280" : "#4b5563"}
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                strokeOpacity={0.8}
+                dot={false}
+                name="Benchmark"
+              />
+            )}
+          </LineChart>
+        ) : (
+          <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 40, bottom: 40 }}>
+            <defs>
+              <linearGradient id="portfolioGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#10b981" stopOpacity={0.05}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#374151" : "#e5e7eb"} opacity={0.5} />
+            <XAxis 
+              dataKey="date" 
+              tick={{ fontSize: 10, fill: isDark ? '#9ca3af' : '#6b7280' }}
+              angle={-45}
+              textAnchor="end"
+              height={40}
+              interval="preserveStartEnd"
+            />
+            <YAxis 
+              tick={{ fontSize: 10, fill: isDark ? '#9ca3af' : '#6b7280' }}
+              label={{ value: 'Return (%)', angle: -90, position: 'insideLeft', offset: 0, style: { fontSize: '10px' } }}
+              tickFormatter={(value) => `${value.toFixed(1)}%`}
+            />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: isDark ? 'rgba(31, 41, 55, 0.98)' : 'rgba(255, 255, 255, 0.98)', 
+                border: isDark ? '1px solid #4b5563' : '1px solid #e5e7eb',
+                borderRadius: '6px',
+                padding: '8px',
+                fontSize: '11px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                color: isDark ? '#f3f4f6' : '#111827'
+              }}
+              formatter={(value: any, name: string) => {
+                const label = name === 'Portfolio' ? 'You' : name === 'Benchmark' ? 'Market' : name;
+                return [`${parseFloat(value).toFixed(2)}%`, label];
+              }}
+              labelFormatter={(label) => formatDate(label)}
+              separator=": "
+            />
+            {portfolioReturns && (
+              <Area
+                type="monotone"
+                dataKey="Portfolio"
+                stroke={isDark ? "#10b981" : "#059669"}
+                strokeWidth={2}
+                fill="url(#portfolioGradient)"
+                name="Portfolio"
+              />
+            )}
+            {benchmarkReturns && (
+              <Area
+                type="monotone"
+                dataKey="Benchmark"
+                stroke={isDark ? "#6b7280" : "#4b5563"}
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                strokeOpacity={0.8}
+                fill="none"
+                name="Benchmark"
+              />
+            )}
+          </AreaChart>
+        )}
       </ResponsiveContainer>
     </div>
   );

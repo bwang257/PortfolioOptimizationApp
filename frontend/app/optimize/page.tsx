@@ -12,6 +12,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import ProModeToggle from '@/components/ProModeToggle';
 import { optimizePortfolio, PortfolioRequest } from '@/lib/api';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
+import { loadProgress, recordActivity } from '@/lib/progressTracking';
 
 export default function OptimizePage() {
   const [tickers, setTickers] = useState<string[]>([]);
@@ -98,6 +99,10 @@ export default function OptimizePage() {
       };
 
       const results = await optimizePortfolio(request);
+      
+      // Record portfolio creation activity
+      const progress = loadProgress();
+      recordActivity('portfolio', progress);
       
       // Store results and optimization parameters in sessionStorage
       sessionStorage.setItem('portfolioResults', JSON.stringify(results));
