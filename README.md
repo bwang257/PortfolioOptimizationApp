@@ -2,7 +2,7 @@
 
 A production-ready full-stack application designed to democratize institutional-grade portfolio construction. It utilizes Modern Portfolio Theory (MPT) to generate optimal asset allocations based on user-selected risk objectives (Sharpe, Sortino, Calmar, and Min-Variance).
 
-Live Deployent: https://portfolio-optimization-app.vercel.app
+Live Deployment: https://portfolio-optimization-app.vercel.app
 
 ## Architecture
 
